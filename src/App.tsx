@@ -4,25 +4,27 @@ import { coach1Course } from "./data/coach1";
 
 function App() {
   const [activeLessonId, setActiveLessonId] = useState(
-    coach1Course.lessons[0].id
+    coach1Course.lessons[0].id,
   );
 
   const activeLesson = coach1Course.lessons.find(
-    (lesson) => lesson.id === activeLessonId
+    (lesson) => lesson.id === activeLessonId,
   );
 
   return (
-    <main>
+    <main className="app-shell">
       <CoachSidebar
         lessons={coach1Course.lessons}
         activeLessonId={activeLessonId}
         onSelectLesson={setActiveLessonId}
       />
 
-      <section>
+      <section className="coach-main">
+        <span className="eyebrow">COACH 1 · THE BASICS</span>
+
         <h1>{activeLesson?.title}</h1>
 
-        <p>{activeLesson?.description}</p>
+        <p className="lesson-description">{activeLesson?.description}</p>
       </section>
     </main>
   );
