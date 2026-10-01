@@ -218,3 +218,45 @@ button {
   display: flex;
   flex-direction: column;
 }
+
+.chess-board {
+  width: min(600px, 100%);
+  margin-top: 28px;
+}
+
+.coach-step {
+  width: min(800px, 100%);
+  margin-top: 20px;
+}
+
+.step-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.step-progress {
+  color: #737b84;
+  font-size: 12px;
+}
+
+.continue-button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #ffffff;
+  background: #2d3338;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.continue-button:hover:not(:disabled) {
+  background: #3a4147;
+}
+
+.continue-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
