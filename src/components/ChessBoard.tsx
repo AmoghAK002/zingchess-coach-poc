@@ -166,7 +166,7 @@ export function ChessBoard({
           console.log("♟️ Coach animation completed");
           checkCoachMoveComplete();
         }, COACH_ANIMATION_DURATION);
-      }, step.delay ?? 0);
+      }, step?.delay ?? 0);
     }
 
     /**
