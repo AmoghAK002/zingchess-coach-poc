@@ -1,7 +1,28 @@
 ﻿import { useEffect, useRef, useState, type CSSProperties } from "react";
+
 import { Chess, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { LessonStep } from "../types/coach";
+
+/*
+ * Describes what happened when the player attempted a move.
+ *
+ * This is separate from the lesson interaction state.
+ *
+ * "correct"
+ *   → The player made the move requested by the lesson.
+ *
+ * "wrong"
+ *   → The player made a legal chess move,
+ *     but it wasn't the move requested by the lesson.
+ *
+ * "illegal"
+ *   → The attempted move violates chess rules.
+ *
+ * "hint"
+ *   → Reserved for future hint functionality.
+ */
+export type PlayerFeedback = "none" | "correct" | "wrong" | "illegal" | "hint";
 
 interface ChessBoardProps {
   /**
@@ -9,7 +30,7 @@ interface ChessBoardProps {
    *
    * The step determines whether:
    * - the Coach controls the board
-   * - or the player controls the board
+   * - or the player controls it
    */
   step?: LessonStep;
 
@@ -26,12 +47,25 @@ interface ChessBoardProps {
    * App uses this to mark the practice step as complete.
    */
   onPlayerMoveComplete?: () => void;
+
+  /**
+   * Sends the result of the player's move
+   * back to the App component.
+   *
+   * This allows the Coach UI to display:
+   * - correct
+   * - wrong
+   * - illegal
+   * feedback.
+   */
+  onPlayerFeedback?: (feedback: PlayerFeedback) => void;
 }
 
 export function ChessBoard({
   step,
   onCoachMoveComplete,
   onPlayerMoveComplete,
+  onPlayerFeedback,
 }: ChessBoardProps) {
   /*
    * How long the Coach's chess movement takes.
@@ -41,30 +75,50 @@ export function ChessBoard({
    */
   const COACH_ANIMATION_DURATION = 1800;
 
-  // Stores the current chess position.
-  // chess.js is responsible for validating chess rules.
+  /*
+   * Stores the current chess position.
+   *
+   * chess.js is responsible for validating
+   * actual chess rules.
+   */
   const [game, setGame] = useState(() => new Chess());
 
-  // Stable refs so callbacks inside useEffect always
-  // have the latest version of the props.
+  /*
+   * Stable refs keep the latest callbacks available
+   * inside effects without forcing the chess/speech
+   * effect to restart every time App re-renders.
+   */
   const onCoachMoveCompleteRef = useRef(onCoachMoveComplete);
+
   const onPlayerMoveCompleteRef = useRef(onPlayerMoveComplete);
+
+  const onPlayerFeedbackRef = useRef(onPlayerFeedback);
+
+  /*
+   * Keep callback refs synchronized with the latest
+   * functions received from App.
+   */
   useEffect(() => {
     onCoachMoveCompleteRef.current = onCoachMoveComplete;
   }, [onCoachMoveComplete]);
+
   useEffect(() => {
     onPlayerMoveCompleteRef.current = onPlayerMoveComplete;
   }, [onPlayerMoveComplete]);
 
+  useEffect(() => {
+    onPlayerFeedbackRef.current = onPlayerFeedback;
+  }, [onPlayerFeedback]);
+
   /**
    * Runs whenever the current lesson step changes.
    *
-   * This is the main bridge between:
+   * This is the bridge between:
    *
    * Lesson data
-   *      |
+   *      ↓
    * Coach behavior
-   *      |
+   *      ↓
    * Chessboard
    */
   useEffect(() => {
@@ -72,105 +126,179 @@ export function ChessBoard({
       return;
     }
 
-    // Stop any speech left over from the previous step.
+    /*
+     * Stop any speech left over from the previous step.
+     */
     window.speechSynthesis.cancel();
 
     /*
      * If the lesson provides a starting position,
-     * load that position before doing anything else.
+     * load that position.
      */
     if (step.setupFen) {
       setGame(new Chess(step.setupFen));
     }
 
-    // Only coach_move steps should automatically
-    // move a chess piece.
+    /*
+     * Only coach_move steps automatically
+     * demonstrate a chess move.
+     */
     if (step.type !== "coach_move" || !step.move) {
       return;
     }
 
-    // Convert "a1-h1" into from="a1", to="h1"
+    /*
+     * Convert:
+     *
+     * "a1-h1"
+     *
+     * into:
+     *
+     * from = "a1"
+     * to   = "h1"
+     */
     const [from, to] = step.move.split("-") as [Square, Square];
 
-    /**
+    /*
      * Browser speech object.
      *
-     * The same text shown in the Coach message
-     * is spoken aloud.
+     * The same explanation shown in the UI
+     * is spoken by the Coach.
      */
     const utterance = new SpeechSynthesisUtterance(step.text);
+
     utterance.lang = "en-US";
-    // Slower speech is easier for a beginner to follow.
+
+    /*
+     * Slightly slower speech makes explanations
+     * easier for beginners to follow.
+     */
     utterance.rate = 0.9;
 
-    // Keep track of timers so React can cancel them on cleanup.
+    /*
+     * Timer used to trigger the Coach's movement.
+     */
     let moveTimer: number | undefined;
 
-    // Tracks whether the Coach's speech has finished.
+    /*
+     * Tracks whether the Coach finished speaking.
+     */
     let speechFinished = false;
 
-    // Tracks whether the chessboard animation has finished.
+    /*
+     * Tracks whether the board animation finished.
+     */
     let animationFinished = false;
 
-    // Prevents the completion callback from firing twice.
+    /*
+     * Prevents completion from firing more than once.
+     */
     let stepCompleted = false;
 
-    // Prevents the move from being triggered twice
-    // (once by onstart, once by the fallback timer).
+    /*
+     * Prevents the move from being triggered twice.
+     *
+     * This can happen because some browsers fire
+     * speech.onstart while our fallback timer may
+     * also trigger.
+     */
     let moveFired = false;
 
     /**
      * A Coach step is complete only when:
-     * 1. The Coach finished speaking
-     * 2. The board finished animating
      *
-     * Once both are true, notify App exactly once.
+     * 1. Speech has finished
+     * 2. Board animation has finished
+     *
+     * Then App is notified exactly once.
      */
     function checkCoachMoveComplete() {
       if (speechFinished && animationFinished && !stepCompleted) {
         stepCompleted = true;
+
         console.log("✅ Coach step completed");
+
         onCoachMoveCompleteRef.current?.();
       }
     }
 
     /**
-     * Triggers the actual chess piece movement.
-     * Called either by onstart or the fallback timer.
+     * Performs the Coach's chess demonstration.
      */
     function triggerMove() {
-      if (moveFired) return;
+      /*
+       * Prevent duplicate movement.
+       */
+      if (moveFired) {
+        return;
+      }
+
       moveFired = true;
 
       moveTimer = window.setTimeout(() => {
         setGame((previousGame) => {
+          /*
+           * Work on a copy instead of mutating
+           * the existing React state.
+           */
           const gameCopy = new Chess(previousGame.fen());
+
           try {
+            /*
+             * Find the piece the Coach wants to move.
+             */
             const piece = gameCopy.get(from);
+
             if (!piece) {
               console.error(`Coach could not find a piece on ${from}.`);
+
               return previousGame;
             }
+
+            /*
+             * The Coach is demonstrating movement,
+             * not playing a normal alternating chess game.
+             *
+             * Therefore make the demonstrated piece's
+             * color the side to move.
+             */
             gameCopy.setTurn(piece.color);
-            gameCopy.move({ from, to, promotion: "q" });
+
+            /*
+             * Let chess.js validate the movement.
+             */
+            gameCopy.move({
+              from,
+              to,
+              promotion: "q",
+            });
+
+            /*
+             * Keep the same side to move so another
+             * Coach demonstration can use the piece.
+             */
             gameCopy.setTurn(piece.color);
+
             return gameCopy;
           } catch (error) {
             console.error(
               `Coach attempted an illegal move: ${from}-${to}`,
               error,
             );
+
             return previousGame;
           }
         });
 
         /*
-         * react-chessboard needs time to visually
-         * animate the piece to its destination.
+         * Give react-chessboard enough time to finish
+         * its visual movement animation.
          */
         window.setTimeout(() => {
           animationFinished = true;
+
           console.log("♟️ Coach animation completed");
+
           checkCoachMoveComplete();
         }, COACH_ANIMATION_DURATION);
       }, step?.delay ?? 0);
@@ -178,53 +306,74 @@ export function ChessBoard({
 
     /**
      * Speech has started.
-     * Trigger the move so the user sees it while hearing the explanation.
+     *
+     * The chess movement starts while the Coach
+     * is speaking so the explanation and movement
+     * feel synchronized.
      */
     utterance.onstart = () => {
       console.log("🎙️ Coach started speaking");
+
       triggerMove();
     };
 
-    /**
-     * Fallback: Chrome/Edge sometimes never fires onstart.
-     * After 1200ms, trigger the move ourselves.
+    /*
+     * Browser fallback.
+     *
+     * Some browsers can occasionally fail to fire
+     * speechSynthesis.onstart.
      */
     const startFallback = window.setTimeout(() => {
       console.warn("⚠️ Speech onstart fallback triggered");
+
       triggerMove();
     }, 1200);
 
     /**
-     * Fires when the browser finishes speaking.
+     * Fires when the Coach finishes speaking.
      */
     utterance.onend = () => {
       speechFinished = true;
+
       console.log("🔊 Coach speech completed");
+
       checkCoachMoveComplete();
     };
 
-    /**
-     * Fallback: if speech never fires onend, mark it complete
-     * after 12 seconds so the lesson doesn't get stuck.
+    /*
+     * Browser fallback for speech completion.
+     *
+     * This prevents a lesson from becoming permanently
+     * stuck if the browser never fires onend.
      */
     const endFallback = window.setTimeout(() => {
       if (!speechFinished) {
         console.warn("⚠️ Speech onend fallback triggered");
+
         speechFinished = true;
+
         checkCoachMoveComplete();
       }
     }, 12000);
 
-    // Start speaking.
+    /*
+     * Start speaking.
+     */
     window.speechSynthesis.speak(utterance);
 
-    /**
+    /*
      * React cleanup.
-     * Cancel speech and all pending timers if step changes.
+     *
+     * If the learner changes steps before the Coach
+     * finishes, cancel all speech and timers.
      */
     return () => {
       window.speechSynthesis.cancel();
-      if (moveTimer !== undefined) window.clearTimeout(moveTimer);
+
+      if (moveTimer !== undefined) {
+        window.clearTimeout(moveTimer);
+      }
+
       window.clearTimeout(startFallback);
       window.clearTimeout(endFallback);
     };
@@ -233,23 +382,88 @@ export function ChessBoard({
   /**
    * Handles a move made by the PLAYER.
    *
-   * This function is only allowed during
+   * This function is only active during
    * a player_move lesson step.
    */
+  /**
+   * Handles a move made by the PLAYER.
+   *
+   * There are three possible outcomes:
+   *
+   * 1. Illegal chess move
+   *    → Reject the move.
+   *
+   * 2. Legal chess move, but wrong lesson answer
+   *    → Show "wrong" feedback.
+   *    → Keep the board unchanged so the player can retry.
+   *
+   * 3. Correct lesson move
+   *    → Update the board.
+   *    → Complete the exercise.
+   */
   function handlePieceDrop(sourceSquare: Square, targetSquare: Square) {
-    // During explanation and coach_move steps,
-    // the user must not control the board.
+    /*
+     * The player can interact only during
+     * a player_move step.
+     */
     if (step?.type !== "player_move") {
       return false;
     }
 
-    // Create a copy of the current position.
+    /*
+     * Clear feedback from the previous attempt.
+     *
+     * The next move will replace it with:
+     * correct / wrong / illegal.
+     */
+    onPlayerFeedbackRef.current?.("none");
+
+    /*
+     * Create a copy of the current chess position.
+     *
+     * We validate the player's move on this copy.
+     *
+     * The actual React state will only be updated
+     * if the move is the correct lesson answer.
+     */
     const gameCopy = new Chess(game.fen());
+
+    /*
+     * Find the piece the player is trying to move.
+     */
+    const piece = gameCopy.get(sourceSquare);
+
+    if (!piece) {
+      console.error(`No chess piece found on ${sourceSquare}.`);
+
+      return false;
+    }
+
+    /*
+     * IMPORTANT:
+     *
+     * These Coach lessons are isolated teaching exercises.
+     *
+     * We are not necessarily playing a normal
+     * alternating chess game.
+     *
+     * Therefore, make the piece being demonstrated
+     * the side to move before validating it.
+     *
+     * This prevents a stale turn from incorrectly
+     * classifying a legal teaching move as illegal.
+     */
+    gameCopy.setTurn(piece.color);
 
     try {
       /*
-       * chess.js checks whether the player's move
-       * follows the actual rules of chess.
+       * chess.js now checks the ACTUAL chess rules.
+       *
+       * Example:
+       *
+       * h5 → h6
+       *
+       * is legal for a rook.
        */
       gameCopy.move({
         from: sourceSquare,
@@ -257,40 +471,118 @@ export function ChessBoard({
         promotion: "q",
       });
     } catch {
-      // Illegal move -> reject it.
+      /*
+       * The move violates an actual chess rule.
+       *
+       * Example:
+       *
+       * rook h5 → g6
+       *
+       * A rook cannot move diagonally.
+       */
+      console.log("🚫 Illegal player move");
+
+      onPlayerFeedbackRef.current?.("illegal");
+
+      /*
+       * Reject the move.
+       *
+       * The board remains at the original position.
+       */
       return false;
     }
 
-    // Save the new player position.
-    setGame(gameCopy);
-
     /*
-     * If this lesson expects a specific move,
-     * compare the player's move with that expectation.
+     * At this point we KNOW:
+     *
+     * The move is legal chess.
+     *
+     * Now perform the second layer of validation:
+     *
+     * "Is this the move requested by the lesson?"
      */
     if (step.expectedMove) {
       const actualMove = `${sourceSquare}-${targetSquare}`;
 
+      /*
+       * -----------------------------------------
+       * CORRECT LESSON MOVE
+       * -----------------------------------------
+       */
       if (actualMove === step.expectedMove) {
-        console.log("✅ Player move completed");
+        console.log("✅ Correct player move");
+
+        /*
+         * Update the board because the player
+         * successfully completed the exercise.
+         */
+        setGame(gameCopy);
+
+        /*
+         * Tell App that the answer was correct.
+         */
+        onPlayerFeedbackRef.current?.("correct");
+
+        /*
+         * Unlock Continue.
+         */
         onPlayerMoveCompleteRef.current?.();
+
+        /*
+         * Tell react-chessboard that the drop
+         * was accepted.
+         */
+        return true;
       }
+
+      /*
+       * -----------------------------------------
+       * LEGAL BUT WRONG LESSON MOVE
+       * -----------------------------------------
+       *
+       * Example:
+       *
+       * Expected:
+       * h5 → h8
+       *
+       * Player:
+       * h5 → h6
+       *
+       * This is legal chess, but it isn't
+       * the answer requested by the lesson.
+       */
+      console.log("❌ Legal but wrong player move");
+
+      onPlayerFeedbackRef.current?.("wrong");
+
+      /*
+       * IMPORTANT:
+       *
+       * Do NOT update React's game state.
+       *
+       * This keeps the rook on h5 so the player
+       * can try again.
+       */
+      return false;
     }
 
-    // Tell react-chessboard that the drop succeeded.
+    /*
+     * If this particular lesson step doesn't specify
+     * an expected move, accept the legal move.
+     */
+    setGame(gameCopy);
+
     return true;
   }
-  /*
+
+  /**
    * Determine which squares should be highlighted.
    *
-   * For a Coach demonstration:
-   *   highlight the starting and destination squares.
+   * Coach move:
+   *   Highlight source + destination.
    *
-   * For a player exercise:
-   *   highlight the expected destination square.
-   *
-   * This gives the learner a visual clue about
-   * what the Coach is demonstrating or asking them to do.
+   * Player move:
+   *   Highlight expected destination.
    */
   const highlightedSquares: Record<string, CSSProperties> = {};
 
@@ -316,45 +608,54 @@ export function ChessBoard({
         "radial-gradient(circle, rgba(76, 175, 80, 0.55) 35%, transparent 36%)",
     };
   }
+
   return (
     <div className={`chess-board ${step?.type ?? ""}`}>
       <Chessboard
         options={{
-          // The FEN determines exactly what pieces
-          // are displayed and where they are located.
+          /*
+           * FEN represents the current chess position.
+           */
           position: game.fen(),
 
+          /*
+           * Visual guidance for the current lesson.
+           */
           squareStyles: highlightedSquares,
 
-          // Explicitly enable programmatic piece animations.
+          /*
+           * Enable programmatic animations.
+           */
           showAnimations: true,
 
           /*
-           * The Coach's piece takes 1800ms to travel
-           * to its destination.
+           * Coach movement duration.
            */
           animationDurationInMs: COACH_ANIMATION_DURATION,
 
           /*
-           * The player can drag pieces ONLY during
-           * a player_move step.
-           *
-           * explanation -> locked
-           * coach_move  -> locked
-           * player_move  -> unlocked
+           * Player can only drag pieces during
+           * player_move steps.
            */
           allowDragging: step?.type === "player_move",
 
           /**
-           * Called when the player releases a piece.
+           * Called when the player drops a piece.
            */
           onPieceDrop: ({ sourceSquare, targetSquare }) => {
-            // react-chessboard can provide no target square
-            // if the piece wasn't dropped on a valid square.
+            /*
+             * No target means the piece was not
+             * dropped on a valid square.
+             */
             if (!targetSquare) {
               return false;
             }
 
+            /*
+             * react-chessboard gives us strings.
+             *
+             * Chess.js expects its stricter Square type.
+             */
             return handlePieceDrop(
               sourceSquare as Square,
               targetSquare as Square,

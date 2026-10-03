@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CoachSidebar } from "./components/CoachSidebar";
 import { CoachMessage } from "./components/CoachMessage";
-import { ChessBoard } from "./components/ChessBoard";
+import { ChessBoard, type PlayerFeedback } from "./components/ChessBoard";
 import { coach1Course } from "./data/coach1";
 
 /*
@@ -23,7 +23,12 @@ function App() {
   const [activeLessonId, setActiveLessonId] = useState(
     coach1Course.lessons[0].id,
   );
-
+  /*
+   * Stores feedback about the player's latest move.
+   *
+   * "none" means there is currently no feedback to show.
+   */
+  const [playerFeedback, setPlayerFeedback] = useState<PlayerFeedback>("none");
   // Stores which step inside the lesson is currently active.
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
@@ -280,31 +285,40 @@ function App() {
          * the Coach or the player should control it.
          */}
         <ChessBoard
-          /*
-           * Changing the lesson changes the React key.
-           *
-           * React will create a fresh ChessBoard component,
-           * which gives it a fresh chess.js game.
-           *
-           * Changing steps inside the same lesson does NOT
-           * change this key, so the board position is preserved.
-           */
           key={activeLessonId}
           step={currentStep}
-          /*
-           * These two callbacks are what unlock the Continue
-           * button after a coach_move or player_move step.
-           *
-           * Without them, ChessBoard fires into a void.
-           */
           onCoachMoveComplete={handleCoachMoveComplete}
           onPlayerMoveComplete={handlePlayerMoveComplete}
+          onPlayerFeedback={(feedback: PlayerFeedback) => {
+            setPlayerFeedback(feedback);
+          }}
         />
 
         {currentStep && (
           <div className="coach-step">
             <CoachMessage title={currentStep.title} text={currentStep.text} />
+            {playerFeedback === "correct" && (
+              <div className="player-feedback correct">
+                <strong>✓ Excellent!</strong>
+                <span>That's the move the Coach asked for.</span>
+              </div>
+            )}
 
+            {playerFeedback === "wrong" && (
+              <div className="player-feedback wrong">
+                <strong>Not quite.</strong>
+                <span>
+                  That's a legal move, but try the highlighted square.
+                </span>
+              </div>
+            )}
+
+            {playerFeedback === "illegal" && (
+              <div className="player-feedback illegal">
+                <strong>That move isn't legal.</strong>
+                <span>Follow the movement rules and try again.</span>
+              </div>
+            )}
             <div className="step-controls">
               <span className="step-progress">
                 Step {currentStepIndex + 1} of {activeLesson?.steps.length}
