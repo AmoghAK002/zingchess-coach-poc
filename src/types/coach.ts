@@ -1,7 +1,4 @@
-export type LessonStepType =
-  | "explanation"
-  | "coach_move"
-  | "player_move";
+export type LessonStepType = "explanation" | "coach_move" | "player_move";
 
 export interface LessonStep {
   id: string;
@@ -11,31 +8,39 @@ export interface LessonStep {
   title?: string;
 
   /**
-   * Text shown/spoken by the coach.
+   * Text displayed to the player and spoken by the Coach.
    */
   text: string;
 
   /**
-   * Used when the coach demonstrates a move.
-   * Example: "e2-e4"
+   * Chess move used when the Coach demonstrates a move.
+   * Example: "a1-h1"
    */
   move?: string;
 
   /**
-   * Used when the player is expected
-   * to make a specific move.
-   * Example: "e2-e4"
+   * Expected move when the player is practicing.
+   * Example: "h5-h8"
    */
   expectedMove?: string;
 
   /**
-   * Optional hint shown during player practice.
+   * Hint shown when the player needs help.
    */
   hint?: string;
 
   /**
-   * Optional delay before a coach demonstration.
-   * We will use this for animation timing later.
+   * Optional starting FEN for this step.
+   *
+   * This lets a lesson create a special teaching
+   * position instead of always using the normal
+   * starting chess position.
+   */
+  setupFen?: string;
+
+  /**
+   * Optional delay before the Coach performs
+   * the demonstration move.
    */
   delay?: number;
 }

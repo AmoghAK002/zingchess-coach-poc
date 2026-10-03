@@ -54,52 +54,55 @@ export const coach1Course: Course = {
           id: "rook-horizontal",
           type: "coach_move",
           title: "Horizontal Movement",
+
+          // The Coach explains what is happening.
+          // This text will also be spoken aloud.
           text: "Watch the rook. It can move horizontally across the board.",
+
+          // Special teaching position:
+          // White rook is on a1.
+          // White king is safely on a2.
+          // Black king is on e8.
+          // The entire first rank is clear,
+          // allowing the rook to demonstrate horizontal movement.
+          setupFen: "4k3/8/8/8/8/8/K7/R7 w - - 0 1",
+
+          // Coach demonstrates the rook moving
+          // from a1 to h1.
           move: "a1-h1",
-          delay: 700,
+
+          // Small pause before the demonstration begins.
+          delay: 500,
         },
 
         {
           id: "rook-vertical",
           type: "coach_move",
           title: "Vertical Movement",
+
+          // The Coach explains the second direction
+          // while demonstrating it on the board.
           text: "The rook can also move vertically along a file.",
+
+          // Move the rook from its current position
+          // on h1 upward to h5.
           move: "h1-h5",
-          delay: 700,
+
+          // Give the player enough time to hear
+          // the beginning of the explanation.
+          delay: 900,
         },
 
         {
           id: "rook-practice",
           type: "player_move",
           title: "Your Turn",
+
           text: "Now you try. Move the rook from h5 to h8.",
+
           expectedMove: "h5-h8",
+
           hint: "The rook can move vertically.",
-        },
-      ],
-    },
-
-    {
-      id: "pawns",
-      title: "How Pawns Move",
-      description: "Learn the basic movement of the pawn.",
-      duration: "5 min",
-
-      steps: [
-        {
-          id: "pawn-intro",
-          type: "explanation",
-          title: "Meet the Pawn",
-          text: "Pawns normally move one square forward. From their starting square, they may move two squares.",
-        },
-
-        {
-          id: "pawn-practice",
-          type: "player_move",
-          title: "Your Turn",
-          text: "Try moving the pawn from e2 to e4.",
-          expectedMove: "e2-e4",
-          hint: "This pawn is on its starting square, so it can move two squares forward.",
         },
       ],
     },

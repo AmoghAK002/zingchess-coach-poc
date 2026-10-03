@@ -260,3 +260,16 @@ button {
   opacity: 0.4;
   cursor: default;
 }
+
+/* Shows the user that the Coach currently controls
+   the chessboard and they should watch. */
+.chess-board.coach-controlled {
+  cursor: default;
+}
+
+/* Gives the lesson area a little breathing room
+   below the chessboard. */
+.chess-board {
+  width: min(600px, 100%);
+  margin-top: 28px;
+}
