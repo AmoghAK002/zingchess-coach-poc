@@ -4,6 +4,20 @@ import { CoachMessage } from "./components/CoachMessage";
 import { ChessBoard } from "./components/ChessBoard";
 import { coach1Course } from "./data/coach1";
 
+/*
+ * Describes what the learner is currently expected to do.
+ *
+ * explanation → read/listen to the Coach
+ * watching    → watch the Coach demonstrate a move
+ * your_turn   → interact with the chessboard
+ * completed   → current step is finished
+ */
+type CoachInteractionState =
+  | "explanation"
+  | "watching"
+  | "your_turn"
+  | "completed";
+
 function App() {
   // Stores which lesson is currently selected.
   const [activeLessonId, setActiveLessonId] = useState(
@@ -28,6 +42,20 @@ function App() {
   const [isStepComplete, setIsStepComplete] = useState(false);
 
   /*
+   * Tracks the current interaction mode of the lesson.
+   *
+   * This is separate from isStepComplete because:
+   *
+   * isStepComplete answers:
+   * "Can I continue?"
+   *
+   * interactionState answers:
+   * "What am I supposed to be doing right now?"
+   */
+  const [interactionState, setInteractionState] =
+    useState<CoachInteractionState>("explanation");
+
+  /*
    * Find the currently selected lesson from the course data.
    */
   const activeLesson = coach1Course.lessons.find(
@@ -40,8 +68,7 @@ function App() {
    * This MUST be declared before the useEffect below,
    * because the effect uses currentStep.
    */
-  const currentStep =
-    activeLesson?.steps[currentStepIndex];
+  const currentStep = activeLesson?.steps[currentStepIndex];
 
   /*
    * Decide whether the newly displayed step is already
@@ -62,13 +89,36 @@ function App() {
       return;
     }
 
+    /*
+     * Every time the lesson step changes,
+     * reset completion first.
+     */
+    setIsStepComplete(false);
+
+    /*
+     * Decide what the learner should currently do.
+     */
     if (currentStep.type === "explanation") {
-      // Explanation steps are immediately complete.
+      /*
+       * Explanation steps don't require an interaction.
+       * The learner can immediately continue.
+       */
+      setInteractionState("explanation");
       setIsStepComplete(true);
-    } else {
-      // Coach and player steps have their own
-      // completion callbacks.
-      setIsStepComplete(false);
+    } else if (currentStep.type === "coach_move") {
+      /*
+       * The Coach controls the board.
+       *
+       * ChessBoard will later tell us when
+       * speech + animation are finished.
+       */
+      setInteractionState("watching");
+    } else if (currentStep.type === "player_move") {
+      /*
+       * The learner is expected to interact
+       * with the chessboard.
+       */
+      setInteractionState("your_turn");
     }
   }, [currentStep]);
 
@@ -95,6 +145,12 @@ function App() {
    */
   function handleCoachMoveComplete() {
     console.log("✅ App received Coach completion");
+
+    /*
+     * The Coach has finished speaking and demonstrating
+     * the move, so this step is now complete.
+     */
+    setInteractionState("completed");
     setIsStepComplete(true);
   }
 
@@ -104,6 +160,12 @@ function App() {
    */
   function handlePlayerMoveComplete() {
     console.log("✅ App received Player move completion");
+
+    /*
+     * The learner successfully performed
+     * the expected move.
+     */
+    setInteractionState("completed");
     setIsStepComplete(true);
   }
 
@@ -131,7 +193,10 @@ function App() {
       setCurrentStepIndex((index) => index + 1);
 
       // The next step starts incomplete.
+      // The useEffect above will determine the
+      // correct interaction state for the new step.
       setIsStepComplete(false);
+      setInteractionState("explanation");
     }
   }
 
@@ -146,17 +211,67 @@ function App() {
       <section className="coach-main">
         <header className="topbar">
           <div>
-            <span className="eyebrow">
-              COACH 1 · THE BASICS
-            </span>
+            <span className="eyebrow">COACH 1 · THE BASICS</span>
 
             <h1>{activeLesson?.title}</h1>
           </div>
         </header>
 
-        <p className="lesson-description">
-          {activeLesson?.description}
-        </p>
+        <p className="lesson-description">{activeLesson?.description}</p>
+
+        {/*
+         * Shows the learner what they should currently be doing.
+         *
+         * This is driven by interactionState rather than
+         * hard-coding the message for each lesson.
+         */}
+        {/*
+         * Shows the learner what is happening right now.
+         *
+         * The message changes automatically depending on
+         * the current lesson interaction state.
+         */}
+        <div className={`interaction-state ${interactionState}`}>
+          {interactionState === "explanation" && (
+            <>
+              <span className="interaction-icon">📖</span>
+              <div>
+                <strong>Learn</strong>
+                <span>Listen to the Coach</span>
+              </div>
+            </>
+          )}
+
+          {interactionState === "watching" && (
+            <>
+              <span className="interaction-icon">👀</span>
+              <div>
+                <strong>Watch the Coach</strong>
+                <span>The Coach is demonstrating the move</span>
+              </div>
+            </>
+          )}
+
+          {interactionState === "your_turn" && (
+            <>
+              <span className="interaction-icon">🎯</span>
+              <div>
+                <strong>Your Turn</strong>
+                <span>Make the move shown by the Coach</span>
+              </div>
+            </>
+          )}
+
+          {interactionState === "completed" && (
+            <>
+              <span className="interaction-icon">✓</span>
+              <div>
+                <strong>Completed</strong>
+                <span>Great job! Continue when you're ready.</span>
+              </div>
+            </>
+          )}
+        </div>
 
         {/*
          * The board receives the current lesson step.
@@ -188,15 +303,11 @@ function App() {
 
         {currentStep && (
           <div className="coach-step">
-            <CoachMessage
-              title={currentStep.title}
-              text={currentStep.text}
-            />
+            <CoachMessage title={currentStep.title} text={currentStep.text} />
 
             <div className="step-controls">
               <span className="step-progress">
-                Step {currentStepIndex + 1} of{" "}
-                {activeLesson?.steps.length}
+                Step {currentStepIndex + 1} of {activeLesson?.steps.length}
               </span>
 
               <button
@@ -204,8 +315,7 @@ function App() {
                 onClick={handleNextStep}
                 disabled={
                   !isStepComplete ||
-                  currentStepIndex ===
-                    (activeLesson?.steps.length ?? 1) - 1
+                  currentStepIndex === (activeLesson?.steps.length ?? 1) - 1
                 }
               >
                 Continue →

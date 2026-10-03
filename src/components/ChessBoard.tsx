@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Chess, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
 import type { LessonStep } from "../types/coach";
@@ -49,8 +49,12 @@ export function ChessBoard({
   // have the latest version of the props.
   const onCoachMoveCompleteRef = useRef(onCoachMoveComplete);
   const onPlayerMoveCompleteRef = useRef(onPlayerMoveComplete);
-  useEffect(() => { onCoachMoveCompleteRef.current = onCoachMoveComplete; }, [onCoachMoveComplete]);
-  useEffect(() => { onPlayerMoveCompleteRef.current = onPlayerMoveComplete; }, [onPlayerMoveComplete]);
+  useEffect(() => {
+    onCoachMoveCompleteRef.current = onCoachMoveComplete;
+  }, [onCoachMoveComplete]);
+  useEffect(() => {
+    onPlayerMoveCompleteRef.current = onPlayerMoveComplete;
+  }, [onPlayerMoveComplete]);
 
   /**
    * Runs whenever the current lesson step changes.
@@ -152,7 +156,10 @@ export function ChessBoard({
             gameCopy.setTurn(piece.color);
             return gameCopy;
           } catch (error) {
-            console.error(`Coach attempted an illegal move: ${from}-${to}`, error);
+            console.error(
+              `Coach attempted an illegal move: ${from}-${to}`,
+              error,
+            );
             return previousGame;
           }
         });
@@ -273,7 +280,42 @@ export function ChessBoard({
     // Tell react-chessboard that the drop succeeded.
     return true;
   }
+  /*
+   * Determine which squares should be highlighted.
+   *
+   * For a Coach demonstration:
+   *   highlight the starting and destination squares.
+   *
+   * For a player exercise:
+   *   highlight the expected destination square.
+   *
+   * This gives the learner a visual clue about
+   * what the Coach is demonstrating or asking them to do.
+   */
+  const highlightedSquares: Record<string, CSSProperties> = {};
 
+  if (step?.type === "coach_move" && step.move) {
+    const [from, to] = step.move.split("-");
+
+    highlightedSquares[from] = {
+      background:
+        "radial-gradient(circle, rgba(255, 193, 7, 0.55) 35%, transparent 36%)",
+    };
+
+    highlightedSquares[to] = {
+      background:
+        "radial-gradient(circle, rgba(255, 193, 7, 0.55) 35%, transparent 36%)",
+    };
+  }
+
+  if (step?.type === "player_move" && step.expectedMove) {
+    const [, to] = step.expectedMove.split("-");
+
+    highlightedSquares[to] = {
+      background:
+        "radial-gradient(circle, rgba(76, 175, 80, 0.55) 35%, transparent 36%)",
+    };
+  }
   return (
     <div className={`chess-board ${step?.type ?? ""}`}>
       <Chessboard
@@ -281,6 +323,8 @@ export function ChessBoard({
           // The FEN determines exactly what pieces
           // are displayed and where they are located.
           position: game.fen(),
+
+          squareStyles: highlightedSquares,
 
           // Explicitly enable programmatic piece animations.
           showAnimations: true,
