@@ -5,61 +5,49 @@ export type LessonStepType =
 
 export interface LessonStep {
   id: string;
-
   type: LessonStepType;
-
   title?: string;
 
   /**
-   * Text displayed to the learner
-   * and spoken by the Coach.
+   * Text displayed to the player and spoken by the Coach.
    */
   text: string;
 
   /**
-   * Chess move demonstrated by the Coach.
-   *
-   * Example:
-   * "a1-h1"
+   * Optional label describing what the Coach is
+   * currently focusing on visually.
+   */
+  focusLabel?: string;
+
+  /**
+   * Chess move used when the Coach demonstrates a move.
    */
   move?: string;
 
   /**
-   * Expected move when the learner
-   * is practicing.
-   *
-   * Example:
-   * "h5-h8"
+   * Expected move when the player is practicing.
    */
   expectedMove?: string;
 
   /**
-   * Hint shown when the learner
-   * needs help.
+   * Hint shown when the player needs help.
    */
   hint?: string;
 
   /**
-   * Optional starting chess position.
+   * Optional starting FEN for this step.
    */
   setupFen?: string;
 
   /**
-   * Optional delay before the Coach
-   * performs a demonstration move.
+   * Optional delay before the Coach performs
+   * the demonstration move.
    */
   delay?: number;
 
   /**
    * Squares that should be visually highlighted
-   * while this lesson step is being explained.
-   *
-   * Example:
-   *
-   * ["a1", "b1", "c1", "d1"]
-   *
-   * This allows the Coach to visually point
-   * at important parts of the chessboard.
+   * during this lesson step.
    */
   highlightSquares?: string[];
 }
