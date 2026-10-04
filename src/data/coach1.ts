@@ -9,7 +9,7 @@ export const coach1Course: Course = {
     {
       id: "what-is-chess",
       title: "What is Chess?",
-      description: "Understand the goal of chess.",
+      description: "Understand the chessboard and the goal of the game.",
       duration: "3 min",
 
       steps: [
@@ -24,7 +24,87 @@ export const coach1Course: Course = {
           id: "board-intro",
           type: "explanation",
           title: "The Chessboard",
-          text: "A chessboard has 64 squares arranged in 8 ranks and 8 files.",
+          text: "This is the chessboard. It has 64 squares arranged in 8 ranks and 8 files.",
+
+          /*
+           * Highlight the entire board.
+           *
+           * The Coach is introducing the board
+           * as a whole.
+           */
+          highlightSquares: [
+            "a1",
+            "b1",
+            "c1",
+            "d1",
+            "e1",
+            "f1",
+            "g1",
+            "h1",
+
+            "a2",
+            "b2",
+            "c2",
+            "d2",
+            "e2",
+            "f2",
+            "g2",
+            "h2",
+
+            "a3",
+            "b3",
+            "c3",
+            "d3",
+            "e3",
+            "f3",
+            "g3",
+            "h3",
+
+            "a4",
+            "b4",
+            "c4",
+            "d4",
+            "e4",
+            "f4",
+            "g4",
+            "h4",
+
+            "a5",
+            "b5",
+            "c5",
+            "d5",
+            "e5",
+            "f5",
+            "g5",
+            "h5",
+
+            "a6",
+            "b6",
+            "c6",
+            "d6",
+            "e6",
+            "f6",
+            "g6",
+            "h6",
+
+            "a7",
+            "b7",
+            "c7",
+            "d7",
+            "e7",
+            "f7",
+            "g7",
+            "h7",
+
+            "a8",
+            "b8",
+            "c8",
+            "d8",
+            "e8",
+            "f8",
+            "g8",
+            "h8",
+          ],
         },
 
         {
@@ -32,6 +112,52 @@ export const coach1Course: Course = {
           type: "explanation",
           title: "The Pieces",
           text: "Each player starts with one king, one queen, two rooks, two bishops, two knights, and eight pawns.",
+
+          /*
+           * Highlight the starting position so the Coach
+           * can visually introduce the pieces.
+           */
+          highlightSquares: [
+            // Black back rank
+            "a8",
+            "b8",
+            "c8",
+            "d8",
+            "e8",
+            "f8",
+            "g8",
+            "h8",
+
+            // Black pawns
+            "a7",
+            "b7",
+            "c7",
+            "d7",
+            "e7",
+            "f7",
+            "g7",
+            "h7",
+
+            // White pawns
+            "a2",
+            "b2",
+            "c2",
+            "d2",
+            "e2",
+            "f2",
+            "g2",
+            "h2",
+
+            // White back rank
+            "a1",
+            "b1",
+            "c1",
+            "d1",
+            "e1",
+            "f1",
+            "g1",
+            "h1",
+          ],
         },
       ],
     },

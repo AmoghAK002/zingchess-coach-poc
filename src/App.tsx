@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
+
 import { CoachSidebar } from "./components/CoachSidebar";
 import { CoachMessage } from "./components/CoachMessage";
-import { ChessBoard, type PlayerFeedback } from "./components/ChessBoard";
+import {
+  ChessBoard,
+  type PlayerFeedback,
+} from "./components/ChessBoard";
+
 import { coach1Course } from "./data/coach1";
 
 /*
  * Describes what the learner is currently expected to do.
  *
- * explanation → read/listen to the Coach
- * watching    → watch the Coach demonstrate a move
- * your_turn   → interact with the chessboard
- * completed   → current step is finished
+ * explanation
+ *   → Read/listen to the Coach.
+ *
+ * watching
+ *   → Watch the Coach demonstrate a move.
+ *
+ * your_turn
+ *   → Interact with the chessboard.
+ *
+ * completed
+ *   → The current step has been completed.
  */
 type CoachInteractionState =
   | "explanation"
@@ -19,75 +31,93 @@ type CoachInteractionState =
   | "completed";
 
 function App() {
-  // Stores which lesson is currently selected.
-  const [activeLessonId, setActiveLessonId] = useState(
-    coach1Course.lessons[0].id,
-  );
   /*
-   * Stores feedback about the player's latest move.
-   *
-   * "none" means there is currently no feedback to show.
+   * --------------------------------------------------
+   * LESSON STATE
+   * --------------------------------------------------
    */
-  const [playerFeedback, setPlayerFeedback] = useState<PlayerFeedback>("none");
-  // Stores which step inside the lesson is currently active.
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   /*
-   * Tracks whether the current step has been completed.
+   * Stores which lesson is currently selected.
+   */
+  const [activeLessonId, setActiveLessonId] =
+    useState(
+      coach1Course.lessons[0].id,
+    );
+
+  /*
+   * Stores which step inside the lesson
+   * is currently active.
+   */
+  const [currentStepIndex, setCurrentStepIndex] =
+    useState(0);
+
+  /*
+   * Tracks whether the current step has
+   * actually been completed.
    *
    * false → Continue is locked
    * true  → Continue is available
-   *
-   * Coach steps:
-   *   Wait for speech + animation.
-   *
-   * Player steps:
-   *   Wait for the correct player move.
    */
-  const [isStepComplete, setIsStepComplete] = useState(false);
+  const [isStepComplete, setIsStepComplete] =
+    useState(false);
 
   /*
-   * Tracks the current interaction mode of the lesson.
-   *
-   * This is separate from isStepComplete because:
-   *
-   * isStepComplete answers:
-   * "Can I continue?"
-   *
-   * interactionState answers:
-   * "What am I supposed to be doing right now?"
+   * Describes what the learner should currently do.
    */
   const [interactionState, setInteractionState] =
-    useState<CoachInteractionState>("explanation");
+    useState<CoachInteractionState>(
+      "explanation",
+    );
 
   /*
-   * Find the currently selected lesson from the course data.
+   * Stores feedback from the player's
+   * latest chess move.
    */
-  const activeLesson = coach1Course.lessons.find(
-    (lesson) => lesson.id === activeLessonId,
-  );
+  const [playerFeedback, setPlayerFeedback] =
+    useState<PlayerFeedback>("none");
 
   /*
-   * Find the current step inside the active lesson.
-   *
-   * This MUST be declared before the useEffect below,
-   * because the effect uses currentStep.
+   * --------------------------------------------------
+   * DERIVED LESSON DATA
+   * --------------------------------------------------
    */
-  const currentStep = activeLesson?.steps[currentStepIndex];
 
   /*
-   * Decide whether the newly displayed step is already
-   * complete.
+   * Find the selected lesson from the course data.
    *
-   * Explanation:
-   *   Nothing needs to be completed by the user,
-   *   so Continue is immediately available.
+   * We derive this instead of storing the entire
+   * lesson separately in React state.
+   */
+  const activeLesson =
+    coach1Course.lessons.find(
+      (lesson) =>
+        lesson.id === activeLessonId,
+    );
+
+  /*
+   * Find the currently active step.
    *
-   * Coach move:
-   *   Wait for speech + animation.
+   * currentStep is derived from:
    *
-   * Player move:
-   *   Wait for the correct player move.
+   * activeLesson + currentStepIndex
+   */
+  const currentStep =
+    activeLesson?.steps[
+      currentStepIndex
+    ];
+
+  /*
+   * --------------------------------------------------
+   * STEP STATE MANAGEMENT
+   * --------------------------------------------------
+   */
+
+  /*
+   * Runs whenever the active lesson step changes.
+   *
+   * This determines the initial interaction state
+   * for the new step.
    */
   useEffect(() => {
     if (!currentStep) {
@@ -95,82 +125,133 @@ function App() {
     }
 
     /*
-     * Every time the lesson step changes,
-     * reset completion first.
+     * Every new step starts without previous
+     * player feedback.
+     */
+    setPlayerFeedback("none");
+
+    /*
+     * Every new step starts incomplete.
+     *
+     * Explanation steps are then immediately
+     * marked complete below.
      */
     setIsStepComplete(false);
 
     /*
-     * Decide what the learner should currently do.
+     * Determine what the learner should do.
      */
     if (currentStep.type === "explanation") {
       /*
-       * Explanation steps don't require an interaction.
-       * The learner can immediately continue.
+       * Explanation steps require no interaction.
        */
       setInteractionState("explanation");
+
+      /*
+       * The learner can continue immediately.
+       */
       setIsStepComplete(true);
-    } else if (currentStep.type === "coach_move") {
+    } else if (
+      currentStep.type === "coach_move"
+    ) {
       /*
        * The Coach controls the board.
        *
-       * ChessBoard will later tell us when
-       * speech + animation are finished.
+       * ChessBoard will notify App after:
+       * speech + animation are complete.
        */
       setInteractionState("watching");
-    } else if (currentStep.type === "player_move") {
+    } else if (
+      currentStep.type === "player_move"
+    ) {
       /*
-       * The learner is expected to interact
-       * with the chessboard.
+       * The learner is now expected
+       * to interact with the board.
        */
       setInteractionState("your_turn");
     }
   }, [currentStep]);
 
   /*
-   * Called when the user selects another lesson
-   * from the sidebar.
+   * --------------------------------------------------
+   * LESSON NAVIGATION
+   * --------------------------------------------------
    */
-  function handleLessonChange(lessonId: string) {
+
+  /*
+   * Called when the learner selects
+   * another lesson from the sidebar.
+   */
+  function handleLessonChange(
+    lessonId: string,
+  ) {
+    /*
+     * Change the selected lesson.
+     */
     setActiveLessonId(lessonId);
 
-    // Always start the selected lesson from step 1.
+    /*
+     * Every lesson starts from its first step.
+     */
     setCurrentStepIndex(0);
 
-    // New lesson starts incomplete.
+    /*
+     * Reset completion state.
+     */
     setIsStepComplete(false);
+
+    /*
+     * Remove feedback from the previous lesson.
+     */
+    setPlayerFeedback("none");
+
+    /*
+     * The useEffect above will determine
+     * the correct state for the new step.
+     */
   }
 
   /*
-   * Called by ChessBoard when the Coach's speech AND
-   * board animation have both finished.
+   * Called when the Coach has finished:
    *
-   * This is what actually unlocks the Continue button
-   * after a coach_move step.
+   * - speaking
+   * - demonstrating the move
+   * - board animation
    */
   function handleCoachMoveComplete() {
-    console.log("✅ App received Coach completion");
+    console.log(
+      "✅ App received Coach completion",
+    );
 
     /*
-     * The Coach has finished speaking and demonstrating
-     * the move, so this step is now complete.
+     * The learner has successfully watched
+     * the Coach demonstration.
      */
     setInteractionState("completed");
+
+    /*
+     * Unlock Continue.
+     */
     setIsStepComplete(true);
   }
 
   /*
-   * Called by ChessBoard when the player makes
-   * the expected move during a player_move step.
+   * Called when the player performs
+   * the expected lesson move.
    */
   function handlePlayerMoveComplete() {
-    console.log("✅ App received Player move completion");
+    console.log(
+      "✅ App received Player move completion",
+    );
 
     /*
-     * The learner successfully performed
-     * the expected move.
+     * The exercise has been successfully completed.
      */
     setInteractionState("completed");
+
+    /*
+     * Unlock Continue.
+     */
     setIsStepComplete(true);
   }
 
@@ -178,165 +259,353 @@ function App() {
    * Move to the next step.
    */
   function handleNextStep() {
+    /*
+     * Safety check.
+     */
     if (!activeLesson) {
       return;
     }
 
     /*
-     * Don't allow the user to move forward until
-     * the current step has actually been completed.
+     * Never allow the learner to skip
+     * an incomplete step.
      */
     if (!isStepComplete) {
       return;
     }
 
     /*
-     * Make sure we are not already on the final step.
+     * Don't move beyond the final step.
      */
-    if (currentStepIndex < activeLesson.steps.length - 1) {
-      // Move to the next lesson step.
-      setCurrentStepIndex((index) => index + 1);
+    if (
+      currentStepIndex <
+      activeLesson.steps.length - 1
+    ) {
+      /*
+       * Move to the next step.
+       */
+      setCurrentStepIndex(
+        (index) => index + 1,
+      );
 
-      // The next step starts incomplete.
-      // The useEffect above will determine the
-      // correct interaction state for the new step.
+      /*
+       * The useEffect watching currentStep
+       * will reset the rest of the state.
+       */
       setIsStepComplete(false);
-      setInteractionState("explanation");
     }
   }
 
+  /*
+   * --------------------------------------------------
+   * RENDER
+   * --------------------------------------------------
+   */
+
   return (
     <main className="app-shell">
+      {/*
+       * =================================================
+       * LEFT — LESSON NAVIGATION
+       * =================================================
+       */}
+
       <CoachSidebar
         lessons={coach1Course.lessons}
         activeLessonId={activeLessonId}
         onSelectLesson={handleLessonChange}
       />
 
-      <section className="coach-main">
-        <header className="topbar">
-          <div>
-            <span className="eyebrow">COACH 1 · THE BASICS</span>
+      {/*
+       * =================================================
+       * MAIN LEARNING AREA
+       * =================================================
+       */}
 
-            <h1>{activeLesson?.title}</h1>
-          </div>
+      <section className="coach-main">
+        {/*
+         * -----------------------------------------------
+         * PAGE HEADER
+         * -----------------------------------------------
+         */}
+
+        <header className="topbar">
+          <span className="eyebrow">
+            COACH 1 · THE BASICS
+          </span>
+
+          <h1>
+            {activeLesson?.title}
+          </h1>
+
+          <p className="lesson-description">
+            {activeLesson?.description}
+          </p>
         </header>
 
-        <p className="lesson-description">{activeLesson?.description}</p>
-
         {/*
-         * Shows the learner what they should currently be doing.
+         * -----------------------------------------------
+         * LEARNING WORKSPACE
+         * -----------------------------------------------
          *
-         * This is driven by interactionState rather than
-         * hard-coding the message for each lesson.
-         */}
-        {/*
-         * Shows the learner what is happening right now.
+         * The actual learning experience is split into
+         * two clear areas:
          *
-         * The message changes automatically depending on
-         * the current lesson interaction state.
-         */}
-        <div className={`interaction-state ${interactionState}`}>
-          {interactionState === "explanation" && (
-            <>
-              <span className="interaction-icon">📖</span>
-              <div>
-                <strong>Learn</strong>
-                <span>Listen to the Coach</span>
-              </div>
-            </>
-          )}
-
-          {interactionState === "watching" && (
-            <>
-              <span className="interaction-icon">👀</span>
-              <div>
-                <strong>Watch the Coach</strong>
-                <span>The Coach is demonstrating the move</span>
-              </div>
-            </>
-          )}
-
-          {interactionState === "your_turn" && (
-            <>
-              <span className="interaction-icon">🎯</span>
-              <div>
-                <strong>Your Turn</strong>
-                <span>Make the move shown by the Coach</span>
-              </div>
-            </>
-          )}
-
-          {interactionState === "completed" && (
-            <>
-              <span className="interaction-icon">✓</span>
-              <div>
-                <strong>Completed</strong>
-                <span>Great job! Continue when you're ready.</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/*
-         * The board receives the current lesson step.
+         * LEFT  → Chessboard
+         * RIGHT → Coach
          *
-         * This allows the board to know whether
-         * the Coach or the player should control it.
+         * This makes the product hierarchy much clearer.
          */}
-        <ChessBoard
-          key={activeLessonId}
-          step={currentStep}
-          onCoachMoveComplete={handleCoachMoveComplete}
-          onPlayerMoveComplete={handlePlayerMoveComplete}
-          onPlayerFeedback={(feedback: PlayerFeedback) => {
-            setPlayerFeedback(feedback);
-          }}
-        />
 
-        {currentStep && (
-          <div className="coach-step">
-            <CoachMessage title={currentStep.title} text={currentStep.text} />
-            {playerFeedback === "correct" && (
-              <div className="player-feedback correct">
-                <strong>✓ Excellent!</strong>
-                <span>That's the move the Coach asked for.</span>
-              </div>
-            )}
+        <div className="learning-workspace">
+          {/*
+           * =============================================
+           * LEFT — CHESSBOARD
+           * =============================================
+           */}
 
-            {playerFeedback === "wrong" && (
-              <div className="player-feedback wrong">
-                <strong>Not quite.</strong>
-                <span>
-                  That's a legal move, but try the highlighted square.
-                </span>
-              </div>
-            )}
-
-            {playerFeedback === "illegal" && (
-              <div className="player-feedback illegal">
-                <strong>That move isn't legal.</strong>
-                <span>Follow the movement rules and try again.</span>
-              </div>
-            )}
-            <div className="step-controls">
-              <span className="step-progress">
-                Step {currentStepIndex + 1} of {activeLesson?.steps.length}
+          <section className="board-section">
+            <div className="board-header">
+              <span className="board-label">
+                CHESSBOARD
               </span>
 
-              <button
-                className="continue-button"
-                onClick={handleNextStep}
-                disabled={
-                  !isStepComplete ||
-                  currentStepIndex === (activeLesson?.steps.length ?? 1) - 1
-                }
-              >
-                Continue →
-              </button>
+              <span className="board-step">
+                Step{" "}
+                {currentStepIndex + 1}{" "}
+                of{" "}
+                {activeLesson?.steps.length}
+              </span>
             </div>
-          </div>
-        )}
+
+            {/*
+             * The key is based on the lesson.
+             *
+             * Switching lessons creates a fresh
+             * ChessBoard and therefore a fresh
+             * chess.js game.
+             *
+             * Changing steps inside the same lesson
+             * preserves the board state.
+             */}
+            <ChessBoard
+              key={activeLessonId}
+              step={currentStep}
+              onCoachMoveComplete={
+                handleCoachMoveComplete
+              }
+              onPlayerMoveComplete={
+                handlePlayerMoveComplete
+              }
+              onPlayerFeedback={(
+                feedback: PlayerFeedback,
+              ) => {
+                setPlayerFeedback(
+                  feedback,
+                );
+              }}
+            />
+          </section>
+
+          {/*
+           * =============================================
+           * RIGHT — COACH PANEL
+           * =============================================
+           */}
+
+          <aside className="coach-panel">
+            {/*
+             * -------------------------------------------
+             * CURRENT INTERACTION STATE
+             * -------------------------------------------
+             */}
+
+            <div
+              className={`interaction-state ${interactionState}`}
+            >
+              {interactionState ===
+                "explanation" && (
+                <>
+                  <span className="interaction-icon">
+                    📖
+                  </span>
+
+                  <div>
+                    <strong>
+                      Learn
+                    </strong>
+
+                    <span>
+                      Listen to the Coach
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {interactionState ===
+                "watching" && (
+                <>
+                  <span className="interaction-icon">
+                    👀
+                  </span>
+
+                  <div>
+                    <strong>
+                      Watch the Coach
+                    </strong>
+
+                    <span>
+                      The Coach is
+                      demonstrating the
+                      move
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {interactionState ===
+                "your_turn" && (
+                <>
+                  <span className="interaction-icon">
+                    🎯
+                  </span>
+
+                  <div>
+                    <strong>
+                      Your Turn
+                    </strong>
+
+                    <span>
+                      Make the move shown
+                      by the Coach
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {interactionState ===
+                "completed" && (
+                <>
+                  <span className="interaction-icon">
+                    ✓
+                  </span>
+
+                  <div>
+                    <strong>
+                      Completed
+                    </strong>
+
+                    <span>
+                      Great job! Continue
+                      when you're ready.
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/*
+             * -------------------------------------------
+             * CURRENT COACH STEP
+             * -------------------------------------------
+             */}
+
+            {currentStep && (
+              <div className="coach-step">
+                <CoachMessage
+                  title={currentStep.title}
+                  text={currentStep.text}
+                />
+
+                {/*
+                 * -----------------------------------------
+                 * PLAYER FEEDBACK
+                 * -----------------------------------------
+                 */}
+
+                {playerFeedback ===
+                  "correct" && (
+                  <div className="player-feedback correct">
+                    <strong>
+                      ✓ Excellent!
+                    </strong>
+
+                    <span>
+                      That's the move
+                      the Coach asked
+                      for.
+                    </span>
+                  </div>
+                )}
+
+                {playerFeedback ===
+                  "wrong" && (
+                  <div className="player-feedback wrong">
+                    <strong>
+                      Not quite.
+                    </strong>
+
+                    <span>
+                      That's a legal
+                      move, but try
+                      the highlighted
+                      square.
+                    </span>
+                  </div>
+                )}
+
+                {playerFeedback ===
+                  "illegal" && (
+                  <div className="player-feedback illegal">
+                    <strong>
+                      That move isn't
+                      legal.
+                    </strong>
+
+                    <span>
+                      Follow the
+                      movement rules
+                      and try again.
+                    </span>
+                  </div>
+                )}
+
+                {/*
+                 * -----------------------------------------
+                 * STEP NAVIGATION
+                 * -----------------------------------------
+                 */}
+
+                <div className="step-controls">
+                  <span className="step-progress">
+                    Step{" "}
+                    {currentStepIndex +
+                      1}{" "}
+                    of{" "}
+                    {activeLesson?.steps.length}
+                  </span>
+
+                  <button
+                    className="continue-button"
+                    onClick={
+                      handleNextStep
+                    }
+                    disabled={
+                      !isStepComplete ||
+                      currentStepIndex ===
+                        (activeLesson?.steps
+                          .length ??
+                          1) -
+                          1
+                    }
+                  >
+                    Continue →
+                  </button>
+                </div>
+              </div>
+            )}
+          </aside>
+        </div>
       </section>
     </main>
   );

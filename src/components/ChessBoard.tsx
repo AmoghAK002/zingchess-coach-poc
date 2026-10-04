@@ -620,8 +620,30 @@ export function ChessBoard({
 
           /*
            * Visual guidance for the current lesson.
+           *
+           * highlightSquares comes from the lesson data.
+           * This keeps the ChessBoard component independent
+           * from individual lesson content.
            */
-          squareStyles: highlightedSquares,
+          /*
+           * Combine all visual highlights used by the board.
+           *
+           * - highlightSquares → highlights coming from lesson data
+           * - highlightedSquares → existing runtime highlights
+           */
+          squareStyles: {
+            ...highlightedSquares,
+
+            ...Object.fromEntries(
+              (step?.highlightSquares ?? []).map((square) => [
+                square,
+                {
+                  background: "rgba(240, 185, 11, 0.45)",
+                  boxShadow: "inset 0 0 0 3px rgba(240, 185, 11, 0.85)",
+                },
+              ]),
+            ),
+          },
 
           /*
            * Enable programmatic animations.

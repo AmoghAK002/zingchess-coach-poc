@@ -1,82 +1,526 @@
+/* =========================================================
+   ZINGCHESS COACH
+   Production UI Design System
+   ========================================================= */
+
 :root {
   font-family:
     Inter,
+    ui-sans-serif,
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
 
-  color: #e8edf2;
-  background: #101214;
+  color: #f4f6f8;
+  background: #0b0d0f;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+
+  /* -------------------------
+     Backgrounds
+     ------------------------- */
+
+  --bg-primary: #0b0d0f;
+  --bg-sidebar: #101315;
+  --bg-panel: #15191c;
+  --bg-panel-hover: #1b2024;
+  --bg-active: #20262b;
+
+  /* -------------------------
+     Borders
+     ------------------------- */
+
+  --border: #282e33;
+  --border-soft: rgba(255, 255, 255, 0.07);
+
+  /* -------------------------
+     Text
+     ------------------------- */
+
+  --text-primary: #f4f6f8;
+  --text-secondary: #b9c1c8;
+  --text-muted: #77818a;
+
+  /* -------------------------
+     Brand / states
+     ------------------------- */
+
+  --accent: #f0b90b;
+  --accent-hover: #ffc928;
+  --accent-soft: rgba(240, 185, 11, 0.12);
+
+  --success: #45c486;
+  --success-soft: rgba(69, 196, 134, 0.1);
+
+  --warning: #e6ad3a;
+  --warning-soft: rgba(230, 173, 58, 0.1);
+
+  --danger: #ef6b6b;
+  --danger-soft: rgba(239, 107, 107, 0.1);
+
+  /* -------------------------
+     Radius
+     ------------------------- */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* -------------------------
+     Shadows
+     ------------------------- */
+
+  --shadow-panel: 0 18px 50px rgba(0, 0, 0, 0.24);
+
+  --shadow-board: 0 24px 70px rgba(0, 0, 0, 0.28);
+
+  /* -------------------------
+     Motion
+     ------------------------- */
+
+  --transition: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  min-width: 320px;
+  min-height: 100%;
+
+  background: var(--bg-primary);
+}
+
 body {
   margin: 0;
+
   min-width: 320px;
-  background: #101214;
+  min-height: 100vh;
+
+  color: var(--text-primary);
+
+  background:
+    radial-gradient(
+      circle at 70% 0%,
+      rgba(255, 255, 255, 0.035),
+      transparent 30%
+    ),
+    var(--bg-primary);
 }
 
 button {
   font: inherit;
 }
 
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
 .app-shell {
   min-height: 100vh;
 
   display: grid;
 
-  grid-template-columns: 300px 1fr;
+  grid-template-columns:
+    260px
+    minmax(0, 1fr);
 
-  background: #101214;
+  background: var(--bg-primary);
 }
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
 .coach-sidebar {
-  min-height: 100vh;
+  position: sticky;
+  top: 0;
 
-  padding: 28px 20px;
+  height: 100vh;
 
-  background: #151719;
+  overflow-y: auto;
 
-  border-right: 1px solid #282d32;
+  padding: 28px 16px;
+
+  background: linear-gradient(180deg, #111416 0%, #0d1012 100%);
+
+  border-right: 1px solid var(--border);
 }
 
-.course-heading {
-  margin-bottom: 28px;
+/*
+ * Product label.
+ */
+.coach-sidebar::before {
+  content: "ZINGCHESS · COACH 1";
+
+  display: block;
+
+  margin: 2px 10px 8px;
+
+  color: var(--text-muted);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
 }
 
-.course-heading h2 {
-  margin: 7px 0;
+/*
+ * Course title.
+ */
+.coach-sidebar > h2 {
+  margin: 0 10px 24px;
 
-  font-size: 24px;
+  color: var(--text-primary);
+
+  font-size: 19px;
+  font-weight: 750;
+
+  letter-spacing: -0.025em;
 }
 
-.course-heading p {
-  margin: 0;
-
-  color: #8e969f;
-
-  font-size: 13px;
-
-  line-height: 1.5;
-}
+/* =========================================================
+   LESSON LIST
+   ========================================================= */
 
 .lesson-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.lesson-item {
+  position: relative;
+
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 10px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  color: var(--text-secondary);
+
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    transform var(--transition);
+}
+
+.lesson-item:hover {
+  background: var(--bg-panel);
+
+  border-color: var(--border-soft);
+
+  color: var(--text-primary);
+
+  transform: translateX(1px);
+}
+
+.lesson-item.active {
+  background: var(--bg-active);
+
+  border-color: rgba(255, 255, 255, 0.08);
+
+  color: var(--text-primary);
+}
+
+/*
+ * Active lesson indicator.
+ */
+.lesson-item.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: -1px;
+  top: 8px;
+  bottom: 8px;
+
+  width: 3px;
+
+  border-radius: 0 4px 4px 0;
+
+  background: var(--accent);
+}
+
+/* Lesson number */
+
+.lesson-number {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 30px;
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 9px;
+
+  color: var(--text-muted);
+
+  background: #20252a;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.lesson-item.active .lesson-number {
+  color: #111315;
+
+  background: var(--accent);
+}
+
+.lesson-title {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
+
+.coach-main {
+  min-width: 0;
+  min-height: 100vh;
+
+  padding:
+    28px
+    32px
+    36px;
+}
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.topbar {
+  width: min(1400px, 100%);
+
+  margin: 0 auto;
+}
+
+.eyebrow {
+  display: block;
+
+  color: var(--accent);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.topbar h1 {
+  margin: 8px 0 0;
+
+  color: var(--text-primary);
+
+  font-size: clamp(28px, 3vw, 38px);
+
+  font-weight: 750;
+
+  letter-spacing: -0.04em;
+
+  line-height: 1.1;
+}
+
+.lesson-description {
+  width: min(1400px, 100%);
+
+  margin: 10px auto 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   LEARNING WORKSPACE
+   ========================================================= */
+
+/*
+ * This is the main product layout.
+ *
+ * LEFT:
+ *   Chessboard
+ *
+ * RIGHT:
+ *   Coach state
+ *   Coach explanation
+ *   Feedback
+ *   Continue
+ */
+
+.learning-workspace {
+  width: min(1180px, 100%);
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 540px)
+    minmax(320px, 380px);
+
+  justify-content: center;
+
+  gap: 28px;
+
+  margin: 28px auto 0;
+
+  align-items: center;
+}
+
+/* =========================================================
+   BOARD SECTION
+   ========================================================= */
+
+.board-section {
+  width: 100%;
+  max-width: 540px;
+
+  min-width: 0;
+
+  padding: 14px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+
+  background: linear-gradient(145deg, #161a1d 0%, #101315 100%);
+
+  box-shadow: var(--shadow-board);
+}
+
+/*
+ * Board header.
+ */
+
+.board-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 15px;
+}
+
+.board-label {
+  color: var(--text-muted);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+}
+
+.board-step {
+  color: var(--text-muted);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/*
+ * ChessBoard component itself.
+ *
+ * Remove the old floating-card appearance because
+ * board-section is now responsible for the container.
+ */
+
+.board-section .chess-board {
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 0;
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+/*
+ * Keep the actual board centered inside
+ * the board section.
+ */
+
+.board-section .chess-board > div {
+  width: 100%;
+  max-width: 510px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+}
+
+/* =========================================================
+   COACH PANEL
+   ========================================================= */
+
+.coach-panel {
+  min-width: 0;
+
   display: flex;
 
   flex-direction: column;
 
-  gap: 7px;
+  gap: 12px;
 }
 
-.lesson-item {
+/* =========================================================
+   INTERACTION STATE
+   ========================================================= */
+
+.interaction-state {
   width: 100%;
 
   display: flex;
@@ -85,323 +529,617 @@ button {
 
   gap: 12px;
 
-  border: 0;
+  margin: 0;
 
-  border-radius: 10px;
+  padding: 14px;
 
-  padding: 11px 10px;
+  border: 1px solid var(--border);
 
-  text-align: left;
+  border-radius: var(--radius-lg);
 
-  color: #c8ced4;
+  background: linear-gradient(145deg, #171b1e, #121517);
 
-  background: transparent;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.14);
 
-  cursor: pointer;
+  transition:
+    border-color var(--transition),
+    background var(--transition),
+    transform var(--transition);
 }
 
-.lesson-item:hover {
-  background: #202428;
-}
-
-.lesson-item.active {
-  background: #252a2f;
-
-  color: #ffffff;
-}
-
-.lesson-number {
+.interaction-icon {
   display: grid;
 
   place-items: center;
 
-  flex: 0 0 28px;
+  flex: 0 0 38px;
 
-  width: 28px;
+  width: 38px;
+  height: 38px;
 
-  height: 28px;
+  border-radius: 11px;
 
-  border-radius: 50%;
+  background: #22282d;
 
-  background: #2b3035;
-
-  color: #aeb5bc;
-
-  font-size: 12px;
+  font-size: 17px;
 }
 
-.lesson-title {
-  font-size: 13px;
-
-  font-weight: 500;
-}
-
-.coach-main {
+.interaction-state > div {
   min-width: 0;
 
-  padding: 32px 42px;
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
 }
 
-.topbar {
-  max-width: 1200px;
+.interaction-state strong {
+  color: var(--text-primary);
 
-  margin: 0 auto 30px;
+  font-size: 13px;
+  font-weight: 750;
 }
 
-.topbar h1 {
-  margin: 6px 0 0;
+.interaction-state span:not(.interaction-icon) {
+  color: var(--text-muted);
 
-  font-size: 30px;
+  font-size: 12px;
+
+  line-height: 1.45;
 }
 
-.eyebrow {
-  color: #8e969f;
+/* ---------------------------------------------------------
+   Watching
+   --------------------------------------------------------- */
 
-  font-size: 10px;
+.interaction-state.watching {
+  border-color: rgba(240, 185, 11, 0.25);
 
-  font-weight: 700;
-
-  letter-spacing: 0.12em;
+  background: linear-gradient(145deg, rgba(240, 185, 11, 0.08), #15191c);
 }
 
-.lesson-description {
-  margin-top: 10px;
-
-  color: #8e969f;
-
-  font-size: 15px;
+.interaction-state.watching .interaction-icon {
+  background: var(--accent-soft);
 }
+
+/* ---------------------------------------------------------
+   Your turn
+   --------------------------------------------------------- */
+
+.interaction-state.your_turn {
+  border-color: rgba(69, 196, 134, 0.28);
+
+  background: linear-gradient(145deg, rgba(69, 196, 134, 0.08), #15191c);
+
+  transform: translateY(-1px);
+}
+
+.interaction-state.your_turn .interaction-icon {
+  background: var(--success-soft);
+}
+
+/* ---------------------------------------------------------
+   Completed
+   --------------------------------------------------------- */
+
+.interaction-state.completed {
+  border-color: rgba(69, 196, 134, 0.25);
+
+  background: linear-gradient(145deg, rgba(69, 196, 134, 0.07), #15191c);
+}
+
+.interaction-state.completed .interaction-icon {
+  color: var(--success);
+
+  background: var(--success-soft);
+}
+
+/* =========================================================
+   COACH STEP
+   ========================================================= */
+
+.coach-step {
+  width: 100%;
+
+  margin: 0;
+}
+
+/* =========================================================
+   COACH MESSAGE
+   ========================================================= */
 
 .coach-message {
-  display: flex;
-  gap: 14px;
+  width: 100%;
 
-  margin-top: 18px;
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+
+  margin: 0;
+
   padding: 18px;
 
-  max-width: 800px;
+  border: 1px solid var(--border);
 
-  border: 1px solid #292e33;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 
-  background: #171a1d;
+  background: linear-gradient(145deg, #171b1e, #121517);
+
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.13);
 }
 
 .coach-avatar {
   display: grid;
+
   place-items: center;
 
-  flex-shrink: 0;
+  flex: 0 0 40px;
 
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
 
-  border-radius: 50%;
+  border: 1px solid rgba(240, 185, 11, 0.16);
 
-  background: #292f34;
+  border-radius: 12px;
+
+  color: var(--accent);
+
+  background: linear-gradient(145deg, #252b30, #1b2024);
 
   font-size: 18px;
 }
 
 .message-label {
-  font-size: 13px;
-  font-weight: 700;
+  color: var(--text-primary);
 
-  color: #e8edf2;
+  font-size: 13px;
+
+  font-weight: 750;
 }
 
 .coach-message p {
   margin: 7px 0 0;
 
-  color: #b7bec5;
+  color: var(--text-secondary);
 
   font-size: 14px;
-  line-height: 1.6;
+
+  line-height: 1.65;
 }
 
-.lesson-steps {
-  display: flex;
-  flex-direction: column;
-}
-
-.chess-board {
-  width: min(600px, 100%);
-  margin-top: 28px;
-}
-
-.coach-step {
-  width: min(800px, 100%);
-  margin-top: 20px;
-}
-
-.step-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-
-.step-progress {
-  color: #737b84;
-  font-size: 12px;
-}
-
-.continue-button {
-  border: 0;
-  border-radius: 8px;
-  padding: 10px 16px;
-  color: #ffffff;
-  background: #2d3338;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.continue-button:hover:not(:disabled) {
-  background: #3a4147;
-}
-
-.continue-button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-/* Shows the user that the Coach currently controls
-   the chessboard and they should watch. */
-.chess-board.coach-controlled {
-  cursor: default;
-}
-
-/* Gives the lesson area a little breathing room
-   below the chessboard. */
-.chess-board {
-  width: min(600px, 100%);
-  margin-top: 28px;
-}
-
-/*
- * --------------------------------------------------
- * COACH INTERACTION STATE
- * --------------------------------------------------
- *
- * This component tells the learner what they should
- * currently be doing.
- */
-
-.interaction-state {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  width: fit-content;
-  min-width: 240px;
-
-  margin: 18px auto 0;
-  padding: 10px 16px;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-
-  background: rgba(255, 255, 255, 0.04);
-
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.interaction-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 32px;
-  height: 32px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.08);
-
-  font-size: 16px;
-}
-
-.interaction-state div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.interaction-state strong {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.interaction-state span:not(.interaction-icon) {
-  font-size: 12px;
-  opacity: 0.65;
-}
-
-/*
- * Coach demonstration state.
- */
-
-.interaction-state.watching {
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-/*
- * Player interaction state.
- */
-
-.interaction-state.your_turn {
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: scale(1.01);
-}
-
-/*
- * Completed state.
- */
-
-.interaction-state.completed {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-/*
- * --------------------------------------------------
- * PLAYER FEEDBACK
- * --------------------------------------------------
- */
+/* =========================================================
+   PLAYER FEEDBACK
+   ========================================================= */
 
 .player-feedback {
   display: flex;
+
   flex-direction: column;
+
   gap: 4px;
 
-  margin-top: 14px;
-  padding: 12px 16px;
+  margin-top: 10px;
 
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 13px 15px;
 
-  font-size: 13px;
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-md);
+
+  background: var(--bg-panel);
+
+  animation: feedback-enter 180ms ease-out;
 }
 
 .player-feedback strong {
-  font-size: 14px;
+  font-size: 13px;
+
+  font-weight: 750;
 }
 
 .player-feedback span {
-  opacity: 0.7;
+  color: var(--text-muted);
+
+  font-size: 12px;
+
+  line-height: 1.5;
 }
+
+/* Correct */
 
 .player-feedback.correct {
-  border-color: rgba(76, 175, 80, 0.35);
+  border-color: rgba(69, 196, 134, 0.28);
+
+  background: var(--success-soft);
 }
+
+.player-feedback.correct strong {
+  color: var(--success);
+}
+
+/* Wrong */
 
 .player-feedback.wrong {
-  border-color: rgba(255, 193, 7, 0.35);
+  border-color: rgba(230, 173, 58, 0.28);
+
+  background: var(--warning-soft);
 }
 
+.player-feedback.wrong strong {
+  color: var(--warning);
+}
+
+/* Illegal */
+
 .player-feedback.illegal {
-  border-color: rgba(244, 67, 54, 0.35);
+  border-color: rgba(239, 107, 107, 0.28);
+
+  background: var(--danger-soft);
+}
+
+.player-feedback.illegal strong {
+  color: var(--danger);
+}
+
+@keyframes feedback-enter {
+  from {
+    opacity: 0;
+
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   STEP CONTROLS
+   ========================================================= */
+
+.step-controls {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-top: 14px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid var(--border-soft);
+}
+
+.step-progress {
+  color: var(--text-muted);
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.02em;
+}
+
+.continue-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  min-width: 112px;
+
+  padding: 10px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 10px;
+
+  color: #111315;
+
+  background: var(--accent);
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform var(--transition),
+    background var(--transition),
+    opacity var(--transition),
+    box-shadow var(--transition);
+}
+
+.continue-button:hover:not(:disabled) {
+  background: var(--accent-hover);
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 22px rgba(240, 185, 11, 0.18);
+}
+
+.continue-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.continue-button:disabled {
+  color: #737c84;
+
+  background: #20252a;
+
+  border-color: transparent;
+
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1150px) {
+  .app-shell {
+    grid-template-columns:
+      220px
+      minmax(0, 1fr);
+  }
+
+  .coach-main {
+    padding: 30px 26px 40px;
+  }
+
+  .learning-workspace {
+    grid-template-columns:
+      minmax(0, 1fr)
+      320px;
+
+    gap: 18px;
+  }
+}
+
+/* =========================================================
+   SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .learning-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .board-section {
+    order: 1;
+  }
+
+  .coach-panel {
+    order: 2;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    gap: 12px;
+  }
+
+  .interaction-state {
+    grid-column: 1 / -1;
+  }
+
+  .coach-step {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .app-shell {
+    display: block;
+  }
+
+  /* -------------------------
+     Sidebar
+     ------------------------- */
+
+  .coach-sidebar {
+    position: relative;
+
+    width: 100%;
+    height: auto;
+
+    padding: 18px 14px;
+
+    border-right: 0;
+
+    border-bottom: 1px solid var(--border);
+  }
+
+  .coach-sidebar > h2 {
+    margin-bottom: 15px;
+  }
+
+  .lesson-list {
+    flex-direction: row;
+
+    overflow-x: auto;
+
+    padding-bottom: 4px;
+
+    scrollbar-width: thin;
+  }
+
+  .lesson-item {
+    flex: 0 0 auto;
+
+    width: auto;
+
+    min-width: 150px;
+  }
+
+  /* -------------------------
+     Main
+     ------------------------- */
+
+  .coach-main {
+    min-height: auto;
+
+    padding: 24px 14px 32px;
+  }
+
+  .topbar h1 {
+    font-size: 28px;
+  }
+
+  .lesson-description {
+    font-size: 13px;
+  }
+
+  /* -------------------------
+     Workspace
+     ------------------------- */
+
+  .learning-workspace {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    margin-top: 24px;
+  }
+
+  .board-section {
+    width: 100%;
+
+    padding: 10px;
+
+    border-radius: 16px;
+  }
+
+  .board-header {
+    padding: 3px 4px;
+  }
+
+  /* -------------------------
+     Coach panel
+     ------------------------- */
+
+  .coach-panel {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .coach-message {
+    padding: 15px;
+  }
+
+  .interaction-state {
+    padding: 12px;
+  }
+
+  /* -------------------------
+     Controls
+     ------------------------- */
+
+  .step-controls {
+    align-items: center;
+  }
+
+  .continue-button {
+    min-width: 104px;
+  }
+}
+
+/* =========================================================
+   SMALL PHONE
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .coach-main {
+    padding: 20px 10px 28px;
+  }
+
+  .topbar h1 {
+    font-size: 25px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+  }
+
+  .board-section {
+    padding: 7px;
+
+    border-radius: 14px;
+  }
+
+  .board-section .chess-board > div {
+    border-radius: 9px;
+  }
+
+  .coach-avatar {
+    flex-basis: 36px;
+
+    width: 36px;
+    height: 36px;
+  }
+
+  .coach-message {
+    gap: 10px;
+
+    padding: 13px;
+  }
+
+  .coach-message p {
+    font-size: 13px;
+  }
+
+  .step-controls {
+    gap: 8px;
+  }
+
+  .continue-button {
+    min-width: 96px;
+
+    padding: 9px 12px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    transition-duration: 0.01ms !important;
+
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+  }
 }
