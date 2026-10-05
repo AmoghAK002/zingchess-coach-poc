@@ -79,6 +79,7 @@ function App() {
     new Set(),
   );
 
+  const [isLessonComplete, setIsLessonComplete] = useState(false);
   /*
    * --------------------------------------------------
    * DERIVED LESSON DATA
@@ -141,12 +142,11 @@ function App() {
     if (currentStep.type === "explanation") {
       setInteractionState("explanation");
       setIsStepComplete(true);
-
-      /*
-       * Explanation steps are completed automatically
-       * because there is no player action required.
-       */
       markStepCompleted(currentStep.id);
+
+      if (currentStepIndex === activeLesson.steps.length - 1) {
+        setIsLessonComplete(true);
+      }
     } else if (currentStep.type === "coach_move") {
       /*
        * The Coach controls the board.
@@ -177,6 +177,18 @@ function App() {
       return updated;
     });
   }
+
+  function checkLessonCompletion() {
+    if (!activeLesson) {
+      return;
+    }
+
+    const lastStepIndex = activeLesson.steps.length - 1;
+
+    if (currentStepIndex === lastStepIndex) {
+      setIsLessonComplete(true);
+    }
+  }
   /*
    * Called when the learner selects
    * another lesson from the sidebar.
@@ -191,6 +203,7 @@ function App() {
      * Each lesson has its own step progress.
      */
     setCompletedStepIds(new Set());
+    setIsLessonComplete(false);
   }
 
   /*
@@ -208,6 +221,7 @@ function App() {
 
     if (currentStep) {
       markStepCompleted(currentStep.id);
+      checkLessonCompletion();
     }
   }
 
@@ -223,6 +237,7 @@ function App() {
 
     if (currentStep) {
       markStepCompleted(currentStep.id);
+      checkLessonCompletion();
     }
   }
 
@@ -437,7 +452,15 @@ function App() {
              * CURRENT COACH STEP
              * -------------------------------------------
              */}
+            {isLessonComplete && (
+              <div className="lesson-complete">
+                <span className="lesson-complete-icon">🎉</span>
 
+                <h2>Lesson Complete!</h2>
+
+                <p>Great job! You finished {activeLesson?.title}.</p>
+              </div>
+            )}
             {currentStep && (
               <div className="coach-step">
                 <CoachMessage
