@@ -200,24 +200,30 @@ export const coach1Course: Course = {
           type: "coach_move",
           title: "Horizontal Movement",
 
-          // The Coach explains what is happening.
-          // This text will also be spoken aloud.
+          /*
+           * The Coach explains what is happening.
+           * This text is also spoken aloud.
+           */
           text: "Watch the rook. It can move horizontally across the board.",
 
-          // Special teaching position:
-          // White rook is on a1.
-          // White king is safely on a2.
-          // Black king is on e8.
-          // The entire first rank is clear,
-          // allowing the rook to demonstrate horizontal movement.
+          /*
+           * Teaching position:
+           * White rook → a1
+           * White king → a2
+           * Black king → e8
+           *
+           * The first rank is clear so the rook
+           * can demonstrate horizontal movement.
+           */
           setupFen: "4k3/8/8/8/8/8/K7/R7 w - - 0 1",
 
-          // Coach demonstrates the rook moving
-          // from a1 to h1.
+          /*
+           * Coach demonstrates:
+           * a1 → h1
+           */
           move: "a1-h1",
 
-          // Small pause before the demonstration begins.
-          delay: 500,
+          delay: 3000,
         },
 
         {
@@ -225,16 +231,22 @@ export const coach1Course: Course = {
           type: "coach_move",
           title: "Vertical Movement",
 
-          // The Coach explains the second direction
-          // while demonstrating it on the board.
+          /*
+           * The Coach now explains that the rook
+           * can also move vertically.
+           */
           text: "The rook can also move vertically along a file.",
 
-          // Move the rook from its current position
-          // on h1 upward to h5.
+          /*
+           * IMPORTANT:
+           * The rook starts on h1 for THIS step.
+           *
+           * h1 → h5
+           */
+          setupFen: "4k3/8/8/8/8/8/K7/7R w - - 0 1",
+
           move: "h1-h5",
 
-          // Give the player enough time to hear
-          // the beginning of the explanation.
           delay: 900,
         },
 
@@ -245,6 +257,20 @@ export const coach1Course: Course = {
 
           text: "Now you try. Move the rook from h5 to h8.",
 
+          /*
+           * Practice always starts from a known position.
+           *
+           * White rook → h5
+           * White king → a2
+           * Black king → e8
+           */
+          setupFen: "4k3/8/8/7R/8/8/K7/8 w - - 0 1",
+
+          /*
+           * The player must make:
+           *
+           * h5 → h8
+           */
           expectedMove: "h5-h8",
 
           hint: "The rook can move vertically.",

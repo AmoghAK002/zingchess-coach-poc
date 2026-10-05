@@ -69,6 +69,17 @@ function App() {
   const [playerFeedback, setPlayerFeedback] = useState<PlayerFeedback>("none");
 
   /*
+   * Stores the IDs of steps completed during the
+   * current lesson.
+   *
+   * Set is used because a step should only appear
+   * once even if the user revisits it.
+   */
+  const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(
+    new Set(),
+  );
+
+  /*
    * --------------------------------------------------
    * DERIVED LESSON DATA
    * --------------------------------------------------
@@ -128,15 +139,14 @@ function App() {
      * Determine what the learner should do.
      */
     if (currentStep.type === "explanation") {
-      /*
-       * Explanation steps require no interaction.
-       */
       setInteractionState("explanation");
+      setIsStepComplete(true);
 
       /*
-       * The learner can continue immediately.
+       * Explanation steps are completed automatically
+       * because there is no player action required.
        */
-      setIsStepComplete(true);
+      markStepCompleted(currentStep.id);
     } else if (currentStep.type === "coach_move") {
       /*
        * The Coach controls the board.
@@ -160,35 +170,27 @@ function App() {
    * --------------------------------------------------
    */
 
+  function markStepCompleted(stepId: string) {
+    setCompletedStepIds((previous) => {
+      const updated = new Set(previous);
+      updated.add(stepId);
+      return updated;
+    });
+  }
   /*
    * Called when the learner selects
    * another lesson from the sidebar.
    */
   function handleLessonChange(lessonId: string) {
-    /*
-     * Change the selected lesson.
-     */
     setActiveLessonId(lessonId);
-
-    /*
-     * Every lesson starts from its first step.
-     */
     setCurrentStepIndex(0);
-
-    /*
-     * Reset completion state.
-     */
     setIsStepComplete(false);
-
-    /*
-     * Remove feedback from the previous lesson.
-     */
     setPlayerFeedback("none");
 
     /*
-     * The useEffect above will determine
-     * the correct state for the new step.
+     * Each lesson has its own step progress.
      */
+    setCompletedStepIds(new Set());
   }
 
   /*
@@ -201,16 +203,12 @@ function App() {
   function handleCoachMoveComplete() {
     console.log("✅ App received Coach completion");
 
-    /*
-     * The learner has successfully watched
-     * the Coach demonstration.
-     */
     setInteractionState("completed");
-
-    /*
-     * Unlock Continue.
-     */
     setIsStepComplete(true);
+
+    if (currentStep) {
+      markStepCompleted(currentStep.id);
+    }
   }
 
   /*
@@ -220,15 +218,12 @@ function App() {
   function handlePlayerMoveComplete() {
     console.log("✅ App received Player move completion");
 
-    /*
-     * The exercise has been successfully completed.
-     */
     setInteractionState("completed");
-
-    /*
-     * Unlock Continue.
-     */
     setIsStepComplete(true);
+
+    if (currentStep) {
+      markStepCompleted(currentStep.id);
+    }
   }
 
   function handlePreviousStep() {
@@ -348,7 +343,8 @@ function App() {
               <span className="board-label">CHESSBOARD</span>
 
               <span className="board-step">
-                Step {currentStepIndex + 1} of {activeLesson?.steps.length}
+                {completedStepIds.size} of {activeLesson?.steps.length ?? 0}{" "}
+                completed
               </span>
             </div>
 

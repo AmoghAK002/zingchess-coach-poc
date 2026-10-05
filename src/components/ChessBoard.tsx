@@ -127,91 +127,38 @@ export function ChessBoard({
     }
 
     /*
-     * Stop any speech left over from the previous step.
+     * After the guard above, this local constant gives
+     * TypeScript a guaranteed LessonStep reference.
+     *
+     * This prevents:
+     * "'step' is possibly 'undefined'"
      */
+    const currentStep = step;
+
     window.speechSynthesis.cancel();
 
-    /*
-     * If the lesson provides a starting position,
-     * load that position.
-     */
-    if (step.setupFen) {
-      setGame(new Chess(step.setupFen));
-    }
+    const stepGame = currentStep.setupFen
+      ? new Chess(currentStep.setupFen)
+      : new Chess(game.fen());
 
-    /*
-     * Only coach_move steps automatically
-     * demonstrate a chess move.
-     */
-    if (step.type !== "coach_move" || !step.move) {
+    setGame(stepGame);
+
+    if (currentStep.type !== "coach_move" || !currentStep.move) {
       return;
     }
 
-    /*
-     * Convert:
-     *
-     * "a1-h1"
-     *
-     * into:
-     *
-     * from = "a1"
-     * to   = "h1"
-     */
-    const [from, to] = step.move.split("-") as [Square, Square];
+    const [from, to] = currentStep.move.split("-") as [Square, Square];
 
-    /*
-     * Browser speech object.
-     *
-     * The same explanation shown in the UI
-     * is spoken by the Coach.
-     */
-    const utterance = new SpeechSynthesisUtterance(step.text);
-
+    const utterance = new SpeechSynthesisUtterance(currentStep.text);
     utterance.lang = "en-US";
-
-    /*
-     * Slightly slower speech makes explanations
-     * easier for beginners to follow.
-     */
     utterance.rate = 0.9;
 
-    /*
-     * Timer used to trigger the Coach's movement.
-     */
     let moveTimer: number | undefined;
-
-    /*
-     * Tracks whether the Coach finished speaking.
-     */
     let speechFinished = false;
-
-    /*
-     * Tracks whether the board animation finished.
-     */
     let animationFinished = false;
-
-    /*
-     * Prevents completion from firing more than once.
-     */
     let stepCompleted = false;
-
-    /*
-     * Prevents the move from being triggered twice.
-     *
-     * This can happen because some browsers fire
-     * speech.onstart while our fallback timer may
-     * also trigger.
-     */
     let moveFired = false;
 
-    /**
-     * A Coach step is complete only when:
-     *
-     * 1. Speech has finished
-     * 2. Board animation has finished
-     *
-     * Then App is notified exactly once.
-     */
     function checkCoachMoveComplete() {
       if (speechFinished && animationFinished && !stepCompleted) {
         stepCompleted = true;
@@ -222,61 +169,32 @@ export function ChessBoard({
       }
     }
 
-    /**
-     * Performs the Coach's chess demonstration.
-     */
     function triggerMove() {
-      /*
-       * Prevent duplicate movement.
-       */
-      if (moveFired) {
-        return;
-      }
+      if (moveFired) return;
 
       moveFired = true;
 
       moveTimer = window.setTimeout(() => {
-        setGame((previousGame) => {
-          /*
-           * Work on a copy instead of mutating
-           * the existing React state.
-           */
-          const gameCopy = new Chess(previousGame.fen());
+        setGame(() => {
+          const gameCopy = new Chess(stepGame.fen());
 
           try {
-            /*
-             * Find the piece the Coach wants to move.
-             */
             const piece = gameCopy.get(from);
 
             if (!piece) {
               console.error(`Coach could not find a piece on ${from}.`);
 
-              return previousGame;
+              return stepGame;
             }
 
-            /*
-             * The Coach is demonstrating movement,
-             * not playing a normal alternating chess game.
-             *
-             * Therefore make the demonstrated piece's
-             * color the side to move.
-             */
             gameCopy.setTurn(piece.color);
 
-            /*
-             * Let chess.js validate the movement.
-             */
             gameCopy.move({
               from,
               to,
               promotion: "q",
             });
 
-            /*
-             * Keep the same side to move so another
-             * Coach demonstration can use the piece.
-             */
             gameCopy.setTurn(piece.color);
 
             return gameCopy;
@@ -286,14 +204,10 @@ export function ChessBoard({
               error,
             );
 
-            return previousGame;
+            return stepGame;
           }
         });
 
-        /*
-         * Give react-chessboard enough time to finish
-         * its visual movement animation.
-         */
         window.setTimeout(() => {
           animationFinished = true;
 
@@ -301,37 +215,19 @@ export function ChessBoard({
 
           checkCoachMoveComplete();
         }, COACH_ANIMATION_DURATION);
-      }, step?.delay ?? 0);
+      }, currentStep.delay ?? 0);
     }
 
-    /**
-     * Speech has started.
-     *
-     * The chess movement starts while the Coach
-     * is speaking so the explanation and movement
-     * feel synchronized.
-     */
     utterance.onstart = () => {
       console.log("🎙️ Coach started speaking");
-
       triggerMove();
     };
 
-    /*
-     * Browser fallback.
-     *
-     * Some browsers can occasionally fail to fire
-     * speechSynthesis.onstart.
-     */
     const startFallback = window.setTimeout(() => {
       console.warn("⚠️ Speech onstart fallback triggered");
-
       triggerMove();
     }, 1200);
 
-    /**
-     * Fires when the Coach finishes speaking.
-     */
     utterance.onend = () => {
       speechFinished = true;
 
@@ -340,12 +236,6 @@ export function ChessBoard({
       checkCoachMoveComplete();
     };
 
-    /*
-     * Browser fallback for speech completion.
-     *
-     * This prevents a lesson from becoming permanently
-     * stuck if the browser never fires onend.
-     */
     const endFallback = window.setTimeout(() => {
       if (!speechFinished) {
         console.warn("⚠️ Speech onend fallback triggered");
@@ -356,17 +246,8 @@ export function ChessBoard({
       }
     }, 12000);
 
-    /*
-     * Start speaking.
-     */
     window.speechSynthesis.speak(utterance);
 
-    /*
-     * React cleanup.
-     *
-     * If the learner changes steps before the Coach
-     * finishes, cancel all speech and timers.
-     */
     return () => {
       window.speechSynthesis.cancel();
 
