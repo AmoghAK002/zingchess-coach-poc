@@ -111,34 +111,55 @@ export const coach1Course: Course = {
           id: "pieces-intro",
           type: "explanation",
           title: "The Pieces",
-          text: "Each player starts with one king, one queen, two rooks, two bishops, two knights, and eight pawns.",
+          text: "Each player starts with six different types of chess pieces.",
+        },
 
-          /*
-           * Highlight the starting position so the Coach
-           * can visually introduce the pieces.
-           */
+        {
+          id: "piece-king",
+          type: "explanation",
+          title: "The King",
+          text: "Each player has one king. The king is the most important piece because losing it means losing the game.",
+          highlightSquares: ["e1", "e8"],
+        },
+
+        {
+          id: "piece-queen",
+          type: "explanation",
+          title: "The Queen",
+          text: "Each player has one queen. The queen is the most powerful piece on the board.",
+          highlightSquares: ["d1", "d8"],
+        },
+
+        {
+          id: "piece-rooks",
+          type: "explanation",
+          title: "The Rooks",
+          text: "Each player starts with two rooks. Rooks begin in the corners of the board.",
+          highlightSquares: ["a1", "h1", "a8", "h8"],
+        },
+
+        {
+          id: "piece-bishops",
+          type: "explanation",
+          title: "The Bishops",
+          text: "Each player starts with two bishops. Bishops move along diagonals.",
+          highlightSquares: ["c1", "f1", "c8", "f8"],
+        },
+
+        {
+          id: "piece-knights",
+          type: "explanation",
+          title: "The Knights",
+          text: "Each player starts with two knights. Knights are the only pieces that can jump over other pieces.",
+          highlightSquares: ["b1", "g1", "b8", "g8"],
+        },
+
+        {
+          id: "piece-pawns",
+          type: "explanation",
+          title: "The Pawns",
+          text: "Each player starts with eight pawns. Pawns form the front line of the army.",
           highlightSquares: [
-            // Black back rank
-            "a8",
-            "b8",
-            "c8",
-            "d8",
-            "e8",
-            "f8",
-            "g8",
-            "h8",
-
-            // Black pawns
-            "a7",
-            "b7",
-            "c7",
-            "d7",
-            "e7",
-            "f7",
-            "g7",
-            "h7",
-
-            // White pawns
             "a2",
             "b2",
             "c2",
@@ -147,16 +168,14 @@ export const coach1Course: Course = {
             "f2",
             "g2",
             "h2",
-
-            // White back rank
-            "a1",
-            "b1",
-            "c1",
-            "d1",
-            "e1",
-            "f1",
-            "g1",
-            "h1",
+            "a7",
+            "b7",
+            "c7",
+            "d7",
+            "e7",
+            "f7",
+            "g7",
+            "h7",
           ],
         },
       ],

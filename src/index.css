@@ -323,10 +323,7 @@ button:focus-visible {
   min-width: 0;
   min-height: 100vh;
 
-  padding:
-    28px
-    32px
-    36px;
+  padding: 28px 32px 36px;
 }
 
 /* =========================================================
@@ -1142,4 +1139,32 @@ button:focus-visible {
 
     animation-iteration-count: 1 !important;
   }
+}
+
+.step-navigation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.previous-button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.previous-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.previous-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }

@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 
 import { CoachSidebar } from "./components/CoachSidebar";
 import { CoachMessage } from "./components/CoachMessage";
-import {
-  ChessBoard,
-  type PlayerFeedback,
-} from "./components/ChessBoard";
+import { ChessBoard, type PlayerFeedback } from "./components/ChessBoard";
 
 import { coach1Course } from "./data/coach1";
 
@@ -40,17 +37,15 @@ function App() {
   /*
    * Stores which lesson is currently selected.
    */
-  const [activeLessonId, setActiveLessonId] =
-    useState(
-      coach1Course.lessons[0].id,
-    );
+  const [activeLessonId, setActiveLessonId] = useState(
+    coach1Course.lessons[0].id,
+  );
 
   /*
    * Stores which step inside the lesson
    * is currently active.
    */
-  const [currentStepIndex, setCurrentStepIndex] =
-    useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
   /*
    * Tracks whether the current step has
@@ -59,23 +54,19 @@ function App() {
    * false → Continue is locked
    * true  → Continue is available
    */
-  const [isStepComplete, setIsStepComplete] =
-    useState(false);
+  const [isStepComplete, setIsStepComplete] = useState(false);
 
   /*
    * Describes what the learner should currently do.
    */
   const [interactionState, setInteractionState] =
-    useState<CoachInteractionState>(
-      "explanation",
-    );
+    useState<CoachInteractionState>("explanation");
 
   /*
    * Stores feedback from the player's
    * latest chess move.
    */
-  const [playerFeedback, setPlayerFeedback] =
-    useState<PlayerFeedback>("none");
+  const [playerFeedback, setPlayerFeedback] = useState<PlayerFeedback>("none");
 
   /*
    * --------------------------------------------------
@@ -89,11 +80,9 @@ function App() {
    * We derive this instead of storing the entire
    * lesson separately in React state.
    */
-  const activeLesson =
-    coach1Course.lessons.find(
-      (lesson) =>
-        lesson.id === activeLessonId,
-    );
+  const activeLesson = coach1Course.lessons.find(
+    (lesson) => lesson.id === activeLessonId,
+  );
 
   /*
    * Find the currently active step.
@@ -102,10 +91,7 @@ function App() {
    *
    * activeLesson + currentStepIndex
    */
-  const currentStep =
-    activeLesson?.steps[
-      currentStepIndex
-    ];
+  const currentStep = activeLesson?.steps[currentStepIndex];
 
   /*
    * --------------------------------------------------
@@ -151,9 +137,7 @@ function App() {
        * The learner can continue immediately.
        */
       setIsStepComplete(true);
-    } else if (
-      currentStep.type === "coach_move"
-    ) {
+    } else if (currentStep.type === "coach_move") {
       /*
        * The Coach controls the board.
        *
@@ -161,9 +145,7 @@ function App() {
        * speech + animation are complete.
        */
       setInteractionState("watching");
-    } else if (
-      currentStep.type === "player_move"
-    ) {
+    } else if (currentStep.type === "player_move") {
       /*
        * The learner is now expected
        * to interact with the board.
@@ -182,9 +164,7 @@ function App() {
    * Called when the learner selects
    * another lesson from the sidebar.
    */
-  function handleLessonChange(
-    lessonId: string,
-  ) {
+  function handleLessonChange(lessonId: string) {
     /*
      * Change the selected lesson.
      */
@@ -219,9 +199,7 @@ function App() {
    * - board animation
    */
   function handleCoachMoveComplete() {
-    console.log(
-      "✅ App received Coach completion",
-    );
+    console.log("✅ App received Coach completion");
 
     /*
      * The learner has successfully watched
@@ -240,9 +218,7 @@ function App() {
    * the expected lesson move.
    */
   function handlePlayerMoveComplete() {
-    console.log(
-      "✅ App received Player move completion",
-    );
+    console.log("✅ App received Player move completion");
 
     /*
      * The exercise has been successfully completed.
@@ -253,6 +229,20 @@ function App() {
      * Unlock Continue.
      */
     setIsStepComplete(true);
+  }
+
+  function handlePreviousStep() {
+    if (currentStepIndex === 0) return;
+
+    setCurrentStepIndex((index) => index - 1);
+
+    /*
+     * Reset step-specific UI state.
+     * The useEffect watching currentStep will also
+     * initialize the new step correctly.
+     */
+    setIsStepComplete(false);
+    setPlayerFeedback("none");
   }
 
   /*
@@ -277,16 +267,11 @@ function App() {
     /*
      * Don't move beyond the final step.
      */
-    if (
-      currentStepIndex <
-      activeLesson.steps.length - 1
-    ) {
+    if (currentStepIndex < activeLesson.steps.length - 1) {
       /*
        * Move to the next step.
        */
-      setCurrentStepIndex(
-        (index) => index + 1,
-      );
+      setCurrentStepIndex((index) => index + 1);
 
       /*
        * The useEffect watching currentStep
@@ -330,17 +315,11 @@ function App() {
          */}
 
         <header className="topbar">
-          <span className="eyebrow">
-            COACH 1 · THE BASICS
-          </span>
+          <span className="eyebrow">COACH 1 · THE BASICS</span>
 
-          <h1>
-            {activeLesson?.title}
-          </h1>
+          <h1>{activeLesson?.title}</h1>
 
-          <p className="lesson-description">
-            {activeLesson?.description}
-          </p>
+          <p className="lesson-description">{activeLesson?.description}</p>
         </header>
 
         {/*
@@ -366,15 +345,10 @@ function App() {
 
           <section className="board-section">
             <div className="board-header">
-              <span className="board-label">
-                CHESSBOARD
-              </span>
+              <span className="board-label">CHESSBOARD</span>
 
               <span className="board-step">
-                Step{" "}
-                {currentStepIndex + 1}{" "}
-                of{" "}
-                {activeLesson?.steps.length}
+                Step {currentStepIndex + 1} of {activeLesson?.steps.length}
               </span>
             </div>
 
@@ -391,18 +365,10 @@ function App() {
             <ChessBoard
               key={activeLessonId}
               step={currentStep}
-              onCoachMoveComplete={
-                handleCoachMoveComplete
-              }
-              onPlayerMoveComplete={
-                handlePlayerMoveComplete
-              }
-              onPlayerFeedback={(
-                feedback: PlayerFeedback,
-              ) => {
-                setPlayerFeedback(
-                  feedback,
-                );
+              onCoachMoveComplete={handleCoachMoveComplete}
+              onPlayerMoveComplete={handlePlayerMoveComplete}
+              onPlayerFeedback={(feedback: PlayerFeedback) => {
+                setPlayerFeedback(feedback);
               }}
             />
           </section>
@@ -420,85 +386,51 @@ function App() {
              * -------------------------------------------
              */}
 
-            <div
-              className={`interaction-state ${interactionState}`}
-            >
-              {interactionState ===
-                "explanation" && (
+            <div className={`interaction-state ${interactionState}`}>
+              {interactionState === "explanation" && (
                 <>
-                  <span className="interaction-icon">
-                    📖
-                  </span>
+                  <span className="interaction-icon">📖</span>
 
                   <div>
-                    <strong>
-                      Learn
-                    </strong>
+                    <strong>Learn</strong>
 
-                    <span>
-                      Listen to the Coach
-                    </span>
+                    <span>Listen to the Coach</span>
                   </div>
                 </>
               )}
 
-              {interactionState ===
-                "watching" && (
+              {interactionState === "watching" && (
                 <>
-                  <span className="interaction-icon">
-                    👀
-                  </span>
+                  <span className="interaction-icon">👀</span>
 
                   <div>
-                    <strong>
-                      Watch the Coach
-                    </strong>
+                    <strong>Watch the Coach</strong>
 
-                    <span>
-                      The Coach is
-                      demonstrating the
-                      move
-                    </span>
+                    <span>The Coach is demonstrating the move</span>
                   </div>
                 </>
               )}
 
-              {interactionState ===
-                "your_turn" && (
+              {interactionState === "your_turn" && (
                 <>
-                  <span className="interaction-icon">
-                    🎯
-                  </span>
+                  <span className="interaction-icon">🎯</span>
 
                   <div>
-                    <strong>
-                      Your Turn
-                    </strong>
+                    <strong>Your Turn</strong>
 
-                    <span>
-                      Make the move shown
-                      by the Coach
-                    </span>
+                    <span>Make the move shown by the Coach</span>
                   </div>
                 </>
               )}
 
-              {interactionState ===
-                "completed" && (
+              {interactionState === "completed" && (
                 <>
-                  <span className="interaction-icon">
-                    ✓
-                  </span>
+                  <span className="interaction-icon">✓</span>
 
                   <div>
-                    <strong>
-                      Completed
-                    </strong>
+                    <strong>Completed</strong>
 
-                    <span>
-                      Great job! Continue
-                      when you're ready.
-                    </span>
+                    <span>Great job! Continue when you're ready.</span>
                   </div>
                 </>
               )}
@@ -523,50 +455,29 @@ function App() {
                  * -----------------------------------------
                  */}
 
-                {playerFeedback ===
-                  "correct" && (
+                {playerFeedback === "correct" && (
                   <div className="player-feedback correct">
-                    <strong>
-                      ✓ Excellent!
-                    </strong>
+                    <strong>✓ Excellent!</strong>
 
-                    <span>
-                      That's the move
-                      the Coach asked
-                      for.
-                    </span>
+                    <span>That's the move the Coach asked for.</span>
                   </div>
                 )}
 
-                {playerFeedback ===
-                  "wrong" && (
+                {playerFeedback === "wrong" && (
                   <div className="player-feedback wrong">
-                    <strong>
-                      Not quite.
-                    </strong>
+                    <strong>Not quite.</strong>
 
                     <span>
-                      That's a legal
-                      move, but try
-                      the highlighted
-                      square.
+                      That's a legal move, but try the highlighted square.
                     </span>
                   </div>
                 )}
 
-                {playerFeedback ===
-                  "illegal" && (
+                {playerFeedback === "illegal" && (
                   <div className="player-feedback illegal">
-                    <strong>
-                      That move isn't
-                      legal.
-                    </strong>
+                    <strong>That move isn't legal.</strong>
 
-                    <span>
-                      Follow the
-                      movement rules
-                      and try again.
-                    </span>
+                    <span>Follow the movement rules and try again.</span>
                   </div>
                 )}
 
@@ -578,29 +489,30 @@ function App() {
 
                 <div className="step-controls">
                   <span className="step-progress">
-                    Step{" "}
-                    {currentStepIndex +
-                      1}{" "}
-                    of{" "}
-                    {activeLesson?.steps.length}
+                    Step {currentStepIndex + 1} of {activeLesson?.steps.length}
                   </span>
 
-                  <button
-                    className="continue-button"
-                    onClick={
-                      handleNextStep
-                    }
-                    disabled={
-                      !isStepComplete ||
-                      currentStepIndex ===
-                        (activeLesson?.steps
-                          .length ??
-                          1) -
-                          1
-                    }
-                  >
-                    Continue →
-                  </button>
+                  <div className="step-navigation">
+                    <button
+                      className="previous-button"
+                      onClick={handlePreviousStep}
+                      disabled={currentStepIndex === 0}
+                    >
+                      ← Previous
+                    </button>
+
+                    <button
+                      className="continue-button"
+                      onClick={handleNextStep}
+                      disabled={
+                        !isStepComplete ||
+                        currentStepIndex ===
+                          (activeLesson?.steps.length ?? 1) - 1
+                      }
+                    >
+                      Continue →
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
