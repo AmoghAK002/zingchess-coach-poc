@@ -466,6 +466,12 @@ function App() {
                     <span>
                       That's a legal move, but try the highlighted square.
                     </span>
+
+                    {currentStep.hint && (
+                      <span className="player-hint">
+                        💡 Hint: {currentStep.hint}
+                      </span>
+                    )}
                   </div>
                 )}
 
@@ -473,7 +479,15 @@ function App() {
                   <div className="player-feedback illegal">
                     <strong>That move isn't legal.</strong>
 
-                    <span>Follow the movement rules and try again.</span>
+                    <span>
+                      Try moving the piece in the direction shown by the Coach.
+                    </span>
+
+                    {currentStep.hint && (
+                      <span className="player-hint">
+                        💡 Hint: {currentStep.hint}
+                      </span>
+                    )}
                   </div>
                 )}
 
