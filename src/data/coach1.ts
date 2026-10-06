@@ -9,29 +9,27 @@ export const coach1Course: Course = {
     {
       id: "what-is-chess",
       title: "What is Chess?",
-      description: "Understand the chessboard and the goal of the game.",
-      duration: "3 min",
+      description: "Learn the basic idea of chess.",
+      duration: "2 min",
 
       steps: [
         {
-          id: "welcome",
+          id: "chess-intro",
           type: "explanation",
           title: "Welcome to Chess",
-          text: "Chess is a two-player strategy game. The goal is to checkmate your opponent's king.",
+          text: "Chess is a game for two players. Each player has an army of pieces.",
         },
-
         {
-          id: "board-intro",
+          id: "chess-goal",
           type: "explanation",
-          title: "The Chessboard",
-          text: "This is the chessboard. It has 64 squares arranged in 8 ranks and 8 files.",
-
-          /*
-           * Highlight the entire board.
-           *
-           * The Coach is introducing the board
-           * as a whole.
-           */
+          title: "The Goal",
+          text: "The goal is to checkmate your opponent's king.",
+        },
+        {
+          id: "chess-board",
+          type: "explanation",
+          title: "The Board",
+          text: "Chess is played on a board with 64 squares.",
           highlightSquares: [
             "a1",
             "b1",
@@ -41,7 +39,6 @@ export const coach1Course: Course = {
             "f1",
             "g1",
             "h1",
-
             "a2",
             "b2",
             "c2",
@@ -50,7 +47,6 @@ export const coach1Course: Course = {
             "f2",
             "g2",
             "h2",
-
             "a3",
             "b3",
             "c3",
@@ -59,7 +55,6 @@ export const coach1Course: Course = {
             "f3",
             "g3",
             "h3",
-
             "a4",
             "b4",
             "c4",
@@ -68,7 +63,6 @@ export const coach1Course: Course = {
             "f4",
             "g4",
             "h4",
-
             "a5",
             "b5",
             "c5",
@@ -77,7 +71,6 @@ export const coach1Course: Course = {
             "f5",
             "g5",
             "h5",
-
             "a6",
             "b6",
             "c6",
@@ -86,7 +79,6 @@ export const coach1Course: Course = {
             "f6",
             "g6",
             "h6",
-
             "a7",
             "b7",
             "c7",
@@ -95,7 +87,6 @@ export const coach1Course: Course = {
             "f7",
             "g7",
             "h7",
-
             "a8",
             "b8",
             "c8",
@@ -106,59 +97,128 @@ export const coach1Course: Course = {
             "h8",
           ],
         },
+      ],
+    },
 
+    {
+      id: "starting-position",
+      title: "Starting Position",
+      description: "See where the pieces start.",
+      duration: "2 min",
+
+      steps: [
+        {
+          id: "starting-position-intro",
+          type: "explanation",
+          title: "The Starting Position",
+          text: "Every chess game starts with the pieces arranged in the same way.",
+          setupFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        },
+        {
+          id: "back-rank",
+          type: "explanation",
+          title: "The Back Row",
+          text: "The back row contains the rooks, knights, bishops, queen and king.",
+          highlightSquares: [
+            "a1",
+            "b1",
+            "c1",
+            "d1",
+            "e1",
+            "f1",
+            "g1",
+            "h1",
+            "a8",
+            "b8",
+            "c8",
+            "d8",
+            "e8",
+            "f8",
+            "g8",
+            "h8",
+          ],
+        },
+        {
+          id: "pawns-start",
+          type: "explanation",
+          title: "The Pawns",
+          text: "Eight pawns stand in front of the other pieces.",
+          highlightSquares: [
+            "a2",
+            "b2",
+            "c2",
+            "d2",
+            "e2",
+            "f2",
+            "g2",
+            "h2",
+            "a7",
+            "b7",
+            "c7",
+            "d7",
+            "e7",
+            "f7",
+            "g7",
+            "h7",
+          ],
+        },
+      ],
+    },
+
+    {
+      id: "pieces",
+      title: "Meet the Pieces",
+      description: "Learn the names of the chess pieces.",
+      duration: "3 min",
+
+      steps: [
         {
           id: "pieces-intro",
           type: "explanation",
-          title: "The Pieces",
-          text: "Each player starts with six different types of chess pieces.",
+          title: "Six Types of Pieces",
+          text: "There are six types of chess pieces: king, queen, rook, bishop, knight and pawn.",
+          setupFen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
         },
-
         {
-          id: "piece-king",
+          id: "pieces-king",
           type: "explanation",
-          title: "The King",
-          text: "Each player has one king. The king is the most important piece because losing it means losing the game.",
+          title: "King",
+          text: "Each player has one king.",
           highlightSquares: ["e1", "e8"],
         },
-
         {
-          id: "piece-queen",
+          id: "pieces-queen",
           type: "explanation",
-          title: "The Queen",
-          text: "Each player has one queen. The queen is the most powerful piece on the board.",
+          title: "Queen",
+          text: "Each player has one queen.",
           highlightSquares: ["d1", "d8"],
         },
-
         {
-          id: "piece-rooks",
+          id: "pieces-rook",
           type: "explanation",
-          title: "The Rooks",
-          text: "Each player starts with two rooks. Rooks begin in the corners of the board.",
+          title: "Rook",
+          text: "Each player has two rooks.",
           highlightSquares: ["a1", "h1", "a8", "h8"],
         },
-
         {
-          id: "piece-bishops",
+          id: "pieces-bishop",
           type: "explanation",
-          title: "The Bishops",
-          text: "Each player starts with two bishops. Bishops move along diagonals.",
+          title: "Bishop",
+          text: "Each player has two bishops.",
           highlightSquares: ["c1", "f1", "c8", "f8"],
         },
-
         {
-          id: "piece-knights",
+          id: "pieces-knight",
           type: "explanation",
-          title: "The Knights",
-          text: "Each player starts with two knights. Knights are the only pieces that can jump over other pieces.",
+          title: "Knight",
+          text: "Each player has two knights.",
           highlightSquares: ["b1", "g1", "b8", "g8"],
         },
-
         {
-          id: "piece-pawns",
+          id: "pieces-pawn",
           type: "explanation",
-          title: "The Pawns",
-          text: "Each player starts with eight pawns. Pawns form the front line of the army.",
+          title: "Pawn",
+          text: "Each player has eight pawns.",
           highlightSquares: [
             "a2",
             "b2",
@@ -274,6 +334,152 @@ export const coach1Course: Course = {
           expectedMove: "h5-h8",
 
           hint: "The rook can move vertically.",
+        },
+      ],
+    },
+
+    {
+      id: "knight",
+      title: "The Knight",
+      description: "Learn how the knight moves.",
+      duration: "4 min",
+
+      steps: [
+        {
+          id: "knight-intro",
+          type: "explanation",
+          title: "Meet the Knight",
+          text: "The knight is a chess piece that moves in an L-shape.",
+        },
+        {
+          id: "knight-demo",
+          type: "coach_move",
+          title: "The L-Shape",
+          text: "Watch the knight move in an L-shape.",
+          setupFen: "4k3/8/8/8/8/2N5/K7/8 w - - 0 1",
+          move: "c3-d5",
+          delay: 500,
+        },
+        {
+          id: "knight-practice",
+          type: "player_move",
+          title: "Your Turn",
+          text: "Move the knight to the highlighted square.",
+          setupFen: "4k3/8/8/8/8/2N5/K7/8 w - - 0 1",
+          expectedMove: "c3-d5",
+          hint: "The knight moves in an L-shape.",
+        },
+      ],
+    },
+
+    {
+      id: "bishop",
+      title: "The Bishop",
+      description: "Learn how the bishop moves.",
+      duration: "4 min",
+
+      steps: [
+        {
+          id: "bishop-intro",
+          type: "explanation",
+          title: "Meet the Bishop",
+          text: "The bishop moves diagonally.",
+        },
+        {
+          id: "bishop-demo",
+          type: "coach_move",
+          title: "Diagonal Movement",
+          text: "Watch the bishop move diagonally.",
+          setupFen: "4k3/8/8/8/3B4/8/K7/8 w - - 0 1",
+          move: "d4-h8",
+          delay: 500,
+        },
+        {
+          id: "bishop-practice",
+          type: "player_move",
+          title: "Your Turn",
+          text: "Move the bishop to the highlighted square.",
+          setupFen: "4k3/8/8/8/3B4/8/K7/8 w - - 0 1",
+          expectedMove: "d4-h8",
+          hint: "The bishop moves diagonally.",
+        },
+      ],
+    },
+
+    {
+      id: "queen",
+      title: "The Queen",
+      description: "Learn how the queen moves.",
+      duration: "4 min",
+
+      steps: [
+        {
+          id: "queen-intro",
+          type: "explanation",
+          title: "Meet the Queen",
+          text: "The queen is a powerful chess piece.",
+        },
+        {
+          id: "queen-demo",
+          type: "coach_move",
+          title: "Straight Lines",
+          text: "The queen can move horizontally and vertically.",
+          setupFen: "4k3/8/8/8/8/8/K7/3Q4 w - - 0 1",
+          move: "d1-d5",
+          delay: 500,
+        },
+        {
+          id: "queen-diagonal",
+          type: "coach_move",
+          title: "Diagonal Movement",
+          text: "The queen can also move diagonally.",
+          setupFen: "4k3/8/8/8/8/8/K7/3Q4 w - - 0 1",
+          move: "d1-h5",
+          delay: 900,
+        },
+        {
+          id: "queen-practice",
+          type: "player_move",
+          title: "Your Turn",
+          text: "Move the queen to the highlighted square.",
+          setupFen: "4k3/8/8/8/8/8/K7/3Q4 w - - 0 1",
+          expectedMove: "d1-d5",
+          hint: "The queen can move straight or diagonally.",
+        },
+      ],
+    },
+
+    {
+      id: "king",
+      title: "The King",
+      description: "Learn how the king moves.",
+      duration: "4 min",
+
+      steps: [
+        {
+          id: "king-intro",
+          type: "explanation",
+          title: "Meet the King",
+          text: "The king is the most important piece in chess.",
+          highlightSquares: ["e1", "e8"],
+        },
+        {
+          id: "king-demo",
+          type: "coach_move",
+          title: "One Square",
+          text: "The king moves one square at a time.",
+          setupFen: "4k3/8/8/8/8/8/K7/8 w - - 0 1",
+          move: "a2-b3",
+          delay: 500,
+        },
+        {
+          id: "king-practice",
+          type: "player_move",
+          title: "Your Turn",
+          text: "Move the king one square to the highlighted square.",
+          setupFen: "4k3/8/8/8/8/8/K7/8 w - - 0 1",
+          expectedMove: "a2-b3",
+          hint: "The king moves one square at a time.",
         },
       ],
     },
