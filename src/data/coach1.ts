@@ -283,7 +283,8 @@ export const coach1Course: Course = {
            */
           move: "a1-h1",
 
-          delay: 3000,
+          delay: 1500,
+          actionDelay: 1200,
         },
 
         {
@@ -480,6 +481,79 @@ export const coach1Course: Course = {
           setupFen: "4k3/8/8/8/8/8/K7/8 w - - 0 1",
           expectedMove: "a2-b3",
           hint: "The king moves one square at a time.",
+        },
+      ],
+    },
+
+    {
+      id: "pawn",
+      title: "The Pawn",
+      description: "Learn how pawns move and capture.",
+      duration: "5 min",
+      steps: [
+        {
+          id: "pawn-intro",
+          type: "explanation",
+          title: "Meet the Pawn",
+          text: "Pawns are the smallest pieces on the board. Each player starts with eight pawns.",
+          highlightSquares: [
+            "a2",
+            "b2",
+            "c2",
+            "d2",
+            "e2",
+            "f2",
+            "g2",
+            "h2",
+            "a7",
+            "b7",
+            "c7",
+            "d7",
+            "e7",
+            "f7",
+            "g7",
+            "h7",
+          ],
+        },
+
+        {
+          id: "pawn-forward",
+          type: "coach_move",
+          title: "Moving Forward",
+          text: "A pawn normally moves one square forward. Watch this pawn move from e2 to e3.",
+          setupFen: "4k3/8/8/8/8/8/4P3/K7 w - - 0 1",
+          move: "e2-e3",
+          delay: 700,
+        },
+
+        {
+          id: "pawn-two-squares",
+          type: "coach_move",
+          title: "The First Move",
+          text: "From its starting position, a pawn can also move two squares forward.",
+          setupFen: "4k3/8/8/8/8/8/4P3/K7 w - - 0 1",
+          move: "e2-e4",
+          delay: 700,
+        },
+
+        {
+          id: "pawn-capture",
+          type: "coach_move",
+          title: "Capturing",
+          text: "Pawns move forward, but they capture diagonally. Watch the white pawn capture the black pawn.",
+          setupFen: "4k3/8/3p4/4P3/8/8/8/K7 w - - 0 1",
+          move: "e5-d6",
+          delay: 700,
+        },
+
+        {
+          id: "pawn-practice",
+          type: "player_move",
+          title: "Your Turn",
+          text: "Now you try. Move the pawn from e2 to e4.",
+          setupFen: "4k3/8/8/8/8/8/4P3/K7 w - - 0 1",
+          expectedMove: "e2-e4",
+          hint: "A pawn can move two squares on its first move.",
         },
       ],
     },

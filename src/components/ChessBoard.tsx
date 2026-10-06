@@ -173,7 +173,7 @@ export function ChessBoard({
       if (moveFired) return;
 
       moveFired = true;
-
+      const actionDelay = currentStep.actionDelay ?? 0;
       moveTimer = window.setTimeout(() => {
         setGame(() => {
           const gameCopy = new Chess(stepGame.fen());
@@ -215,7 +215,7 @@ export function ChessBoard({
 
           checkCoachMoveComplete();
         }, COACH_ANIMATION_DURATION);
-      }, currentStep.delay ?? 0);
+      }, actionDelay);
     }
 
     utterance.onstart = () => {
