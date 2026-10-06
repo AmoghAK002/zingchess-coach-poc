@@ -14,6 +14,7 @@ export interface LessonStep {
   hint?: string;
   setupFen?: string;
   delay?: number;
+  isCapture?: boolean;
   highlightSquares?: string[];
 
   // Controls when the visual Coach action begins during narration.

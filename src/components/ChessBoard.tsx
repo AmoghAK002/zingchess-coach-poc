@@ -187,6 +187,18 @@ export function ChessBoard({
               return stepGame;
             }
 
+            const capturedPiece = gameCopy.get(to);
+
+            const isCapture = Boolean(
+              capturedPiece && capturedPiece.color !== piece.color,
+            );
+
+            console.log(
+              isCapture
+                ? `⚔️ Coach capture: ${from}-${to}`
+                : `♟️ Coach move: ${from}-${to}`,
+            );
+
             gameCopy.setTurn(piece.color);
 
             gameCopy.move({
