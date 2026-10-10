@@ -172,9 +172,9 @@ export function ChessBoard({
 
           if (isCapture) setCaptureSquare(to);
 
-          gameCopy.setTurn(piece.color);
+          // Execute the coach's move using the current board position.
+          // chess.js validates the move and updates the turn automatically.
           gameCopy.move({ from, to, promotion: "q" });
-          gameCopy.setTurn(piece.color);
 
           return gameCopy;
         } catch (error) {
