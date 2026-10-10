@@ -868,3 +868,192 @@ button:focus-visible {
     padding: 20px 16px;
   }
 }
+
+/* =========================================
+   ZINGCHESS LESSON PREVIEW OVERLAY
+========================================= */
+
+.lesson-start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+  background: rgba(5, 8, 12, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lesson-start-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 40px;
+
+  background: #151a23;
+  color: #f5f7fa;
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.55);
+
+  animation: lesson-preview-enter 240ms ease-out;
+}
+
+.lesson-preview-eyebrow {
+  display: inline-block;
+  margin-bottom: 18px;
+
+  color: #f4c400;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.lesson-start-card h2 {
+  margin: 0 0 14px;
+  color: #ffffff;
+
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.lesson-preview-description {
+  margin: 0;
+  color: #a9b2c1;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.lesson-preview-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+.lesson-preview-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 16px 12px;
+
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+}
+
+.detail-icon {
+  font-size: 22px;
+}
+
+.lesson-preview-detail div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.lesson-preview-detail strong {
+  color: #f5f7fa;
+  font-size: 12px;
+}
+
+.lesson-preview-detail div span {
+  color: #929cac;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.start-lesson-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  width: 100%;
+  margin-top: 28px;
+  padding: 16px 20px;
+
+  background: #f4c400;
+  color: #151a23;
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.start-lesson-button:hover {
+  transform: translateY(-2px);
+  background: #ffda35;
+}
+
+.start-lesson-button:active {
+  transform: translateY(0);
+}
+
+.start-lesson-button:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 4px;
+}
+
+.start-lesson-button span {
+  font-size: 20px;
+}
+
+.lesson-preview-footer {
+  margin: 18px 0 0;
+  color: #778294;
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes lesson-preview-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 520px) {
+  .lesson-start-overlay {
+    padding: 16px;
+  }
+
+  .lesson-start-card {
+    padding: 28px 22px;
+  }
+
+  .lesson-preview-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-start-card {
+    animation: none;
+  }
+
+  .start-lesson-button {
+    transition: none;
+  }
+}

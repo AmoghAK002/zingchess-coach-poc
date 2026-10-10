@@ -368,6 +368,63 @@ function App() {
           </aside>
         </div>
       </section>
+      {/* Lesson Preview Overlay */}
+      {!hasStartedLesson && !isLessonComplete && activeLesson && (
+        <div className="lesson-start-overlay">
+          <section
+            className="lesson-start-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lesson-preview-title"
+          >
+            <span className="lesson-preview-eyebrow">
+              ZINGCHESS COACH · COACH 1
+            </span>
+
+            <h2 id="lesson-preview-title">{activeLesson.title}</h2>
+
+            <p className="lesson-preview-description">
+              {activeLesson.description}
+            </p>
+
+            <div className="lesson-preview-details">
+              <div className="lesson-preview-detail">
+                <span className="detail-icon">📚</span>
+                <div>
+                  <strong>{activeLesson.steps.length} steps</strong>
+                  <span>Interactive lesson</span>
+                </div>
+              </div>
+
+              <div className="lesson-preview-detail">
+                <span className="detail-icon">♟</span>
+                <div>
+                  <strong>Learn by doing</strong>
+                  <span>Watch, practice, and improve</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              className="start-lesson-button"
+              onClick={() => {
+                setCurrentStepIndex(0);
+                setIsStepComplete(false);
+                setPlayerFeedback("none");
+                setIsLessonComplete(false);
+                setIsSpeaking(false);
+                setHasStartedLesson(true);
+              }}
+            >
+              Start Lesson <span aria-hidden="true">→</span>
+            </button>
+
+            <p className="lesson-preview-footer">
+              Your coach is ready when you are.
+            </p>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
