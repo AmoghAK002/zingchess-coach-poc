@@ -25,6 +25,9 @@ function App() {
   const [completedStepIds, setCompletedStepIds] = useState<Set<string>>(
     new Set(),
   );
+
+  // Whether the learner has explicitly started the selected lesson.
+  const [hasStartedLesson, setHasStartedLesson] = useState(false);
   const [isLessonComplete, setIsLessonComplete] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [replayTrigger, setReplayTrigger] = useState(0);
@@ -51,7 +54,8 @@ function App() {
   }
 
   useEffect(() => {
-    if (!currentStep) return;
+    // Don't process lesson steps until the learner starts.
+    if (!currentStep || !hasStartedLesson) return;
 
     setPlayerFeedback("none");
     setIsStepComplete(false);
@@ -67,15 +71,24 @@ function App() {
     } else if (currentStep.type === "player_move") {
       setInteractionState("your_turn");
     }
-  }, [currentStep, currentStepIndex, activeLesson]);
+  }, [currentStep, currentStepIndex, activeLesson, hasStartedLesson]);
 
   function handleLessonChange(lessonId: string) {
+    // Select the lesson, but don't start it yet.
     setActiveLessonId(lessonId);
+    setHasStartedLesson(false);
+
+    // Reset the lesson to its first step.
     setCurrentStepIndex(0);
     setIsStepComplete(false);
     setPlayerFeedback("none");
+
+    // Reset progress and completion for the selected lesson.
     setCompletedStepIds(new Set());
     setIsLessonComplete(false);
+
+    // Stop any speech from the previous lesson.
+    window.speechSynthesis.cancel();
     setIsSpeaking(false);
   }
 
@@ -185,7 +198,9 @@ function App() {
 
           <div className="topbar-right">
             <div className="step-counter-badge">
-              <span>Step {currentStepIndex + 1} of {totalSteps}</span>
+              <span>
+                Step {currentStepIndex + 1} of {totalSteps}
+              </span>
             </div>
           </div>
         </header>
@@ -242,6 +257,7 @@ function App() {
             <ChessBoard
               key={`${activeLessonId}-${currentStepIndex}`}
               step={currentStep}
+              enabled={hasStartedLesson}
               onCoachMoveComplete={handleCoachMoveComplete}
               onPlayerMoveComplete={handlePlayerMoveComplete}
               onPlayerFeedback={(feedback: PlayerFeedback) => {
@@ -357,4 +373,3 @@ function App() {
 }
 
 export default App;
-

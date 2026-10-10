@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+﻿import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { Chess, type Square } from "chess.js";
 import { Chessboard } from "react-chessboard";
@@ -14,10 +14,13 @@ interface ChessBoardProps {
   onSpeechStart?: () => void;
   onSpeechEnd?: () => void;
   replayTrigger?: number;
+  // Controls whether the lesson's narration and automatic moves can begin.
+  enabled?: boolean;
 }
 
 export function ChessBoard({
   step,
+  enabled = true,
   onCoachMoveComplete,
   onPlayerMoveComplete,
   onPlayerFeedback,
@@ -71,7 +74,13 @@ export function ChessBoard({
     if (!step) return;
 
     const currentStep = step;
+
+    // Stop any previous narration before checking lesson status.
     window.speechSynthesis.cancel();
+
+    // Keep the board ready, but don't start narration or moves
+    // until the learner explicitly starts the lesson.
+    if (!enabled) return;
 
     // Set initial position for current step
     const initialGame = currentStep.setupFen
@@ -158,7 +167,7 @@ export function ChessBoard({
 
           const capturedPiece = gameCopy.get(to);
           const isCapture = Boolean(
-            capturedPiece && capturedPiece.color !== piece.color
+            capturedPiece && capturedPiece.color !== piece.color,
           );
 
           if (isCapture) setCaptureSquare(to);
@@ -205,7 +214,7 @@ export function ChessBoard({
         const fallbackTimer = window.setTimeout(() => {
           if (!moveFired && !hasBoundaryFired) {
             console.log(
-              "⏱️ Word boundary fallback triggered (onboundary did not fire)"
+              "⏱️ Word boundary fallback triggered (onboundary did not fire)",
             );
             executeMove();
           }
@@ -263,7 +272,7 @@ export function ChessBoard({
       window.speechSynthesis.cancel();
       timers.forEach((t) => window.clearTimeout(t));
     };
-  }, [step, replayTrigger]);
+  }, [step, replayTrigger, enabled]);
 
   function handlePieceDrop(sourceSquare: Square, targetSquare: Square) {
     if (step?.type !== "player_move") return false;
@@ -384,4 +393,3 @@ export function ChessBoard({
     </div>
   );
 }
-
