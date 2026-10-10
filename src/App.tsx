@@ -46,13 +46,6 @@ function App() {
     });
   }
 
-  function checkLessonCompletion(stepIndex: number) {
-    if (!activeLesson) return;
-    if (stepIndex === activeLesson.steps.length - 1) {
-      setIsLessonComplete(true);
-    }
-  }
-
   useEffect(() => {
     // Don't process lesson steps until the learner starts.
     if (!currentStep || !hasStartedLesson) return;
@@ -65,7 +58,6 @@ function App() {
       setInteractionState("explanation");
       setIsStepComplete(true);
       markStepCompleted(currentStep.id);
-      checkLessonCompletion(currentStepIndex);
     } else if (currentStep.type === "coach_move") {
       setInteractionState("watching");
     } else if (currentStep.type === "player_move") {
@@ -98,7 +90,6 @@ function App() {
 
     if (currentStep) {
       markStepCompleted(currentStep.id);
-      checkLessonCompletion(currentStepIndex);
     }
   }
 
@@ -108,7 +99,6 @@ function App() {
 
     if (currentStep) {
       markStepCompleted(currentStep.id);
-      checkLessonCompletion(currentStepIndex);
     }
   }
 
@@ -174,6 +164,8 @@ function App() {
 
   const feedbackContent = getFeedbackContent(playerFeedback);
   const totalSteps = activeLesson?.steps.length ?? 0;
+  const isFinalStepComplete =
+    totalSteps > 0 && currentStepIndex === totalSteps - 1 && isStepComplete;
   const isPlayerTurn = interactionState === "your_turn";
 
   return (
@@ -271,7 +263,7 @@ function App() {
 
           {/* Coach Studio Panel */}
           <aside className="coach-panel">
-            {currentStep && (
+            {currentStep && !isLessonComplete && (
               <div className="coach-step">
                 <CoachMessage
                   title={currentStep.title ?? "Coach"}
@@ -334,6 +326,22 @@ function App() {
                     >
                       Continue →
                     </button>
+                    {/* Show Finish Lesson only after the final step is complete. */}
+                    {isFinalStepComplete && !isLessonComplete && (
+                      <button
+                        className="finish-lesson-btn"
+                        onClick={() => {
+                          // Immediately stop any narration currently playing.
+                          window.speechSynthesis.cancel();
+
+                          // Update the UI and mark the lesson as finished.
+                          setIsSpeaking(false);
+                          setIsLessonComplete(true);
+                        }}
+                      >
+                        Finish Lesson ✓
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

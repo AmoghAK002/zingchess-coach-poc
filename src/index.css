@@ -1057,3 +1057,32 @@ button:focus-visible {
     transition: none;
   }
 }
+
+/* Finish Lesson button */
+.finish-lesson-btn {
+  padding: 14px 22px;
+  background: #f4c400;
+  color: #151a23;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.finish-lesson-btn:hover {
+  background: #ffda35;
+  transform: translateY(-2px);
+}
+
+.finish-lesson-btn:active {
+  transform: translateY(0);
+}
+
+.finish-lesson-btn:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 4px;
+}
